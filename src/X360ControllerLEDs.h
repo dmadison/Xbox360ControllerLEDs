@@ -170,7 +170,7 @@ namespace Xbox360Controller_LEDs {
 		static constexpr uint32_t BlinkSlow = 700;
 		static constexpr uint32_t RotateTime = 100;
 
-		static constexpr uint32_t PlayerBlinkCount = 3;
+		static constexpr uint8_t PlayerBlinkCount = 3;
 
 		static constexpr uint8_t States_Off = 0b0000;
 		static constexpr uint8_t States_On  = 0b1111;
