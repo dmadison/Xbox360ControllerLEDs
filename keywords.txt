@@ -54,3 +54,4 @@ Rotating	LITERAL1
 BlinkOnce	LITERAL1
 BlinkSlow	LITERAL1
 Alternating	LITERAL1
+NumPatterns	LITERAL1

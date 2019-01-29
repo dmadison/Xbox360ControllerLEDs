@@ -51,6 +51,8 @@ namespace Xbox360Controller_LEDs {
 		// Meta options
 		Previous,  // After this, go back to previous pattern
 		Null,      // Not a pattern
+		Max = Alternating,  // # of patterns, indexed at 0
+		NumPatterns = Max + 1  // # of patterns, indexed at 1
 	};
 
 	struct LED_Frame {
@@ -188,7 +190,7 @@ namespace Xbox360Controller_LEDs {
 
 	class XboxLEDHandler {
 	public:
-		static const uint8_t NumPatterns = 14;
+		static const uint8_t NumPatterns = (uint8_t) LED_Pattern::NumPatterns;
 		using Animation = AnimationBase;
 
 		XboxLEDHandler();
