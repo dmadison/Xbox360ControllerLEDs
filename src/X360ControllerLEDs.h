@@ -99,16 +99,6 @@ namespace Xbox360Controller_LEDs {
 		const LED_Frame<nleds> Frames[nframes];
 	};
 
-	class XboxLEDBase {
-	public:
-		static const uint8_t NumPatterns = 14;
-
-		virtual void begin() = 0;
-		virtual void setPattern(LED_Pattern) = 0;
-		virtual void receivePattern(LED_Pattern) = 0;
-		virtual void run() = 0;
-	};
-
 	template <size_t nleds>
 	class XboxLEDAnimations {
 	public:
@@ -189,6 +179,16 @@ namespace Xbox360Controller_LEDs {
 
 		static constexpr boolean States_Op1[4] = { 1, 0, 1, 0 };
 		static constexpr boolean States_Op2[4] = { 0, 1, 0, 1 };
+	};
+
+	class XboxLEDBase {
+	public:
+		static const uint8_t NumPatterns = 14;
+
+		virtual void begin() = 0;
+		virtual void setPattern(LED_Pattern) = 0;
+		virtual void receivePattern(LED_Pattern) = 0;
+		virtual void run() = 0;
 	};
 
 	template <uint8_t ...pins>
