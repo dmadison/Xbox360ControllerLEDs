@@ -304,7 +304,7 @@ namespace Xbox360Controller_LEDs {
 
 		void setLEDs() {
 			for (uint8_t i = 0; i < NumLEDs; i++) {
-				digitalWrite(Pins[i], Inverted ? !state[i] : state[i]);
+				digitalWrite(Pins[i], state[i] ^ Inverted);
 			}
 		}
 
