@@ -53,16 +53,11 @@ namespace Xbox360Controller_LEDs {
 		Null,      // Not a pattern
 	};
 
-	template<size_t nleds>
 	struct LED_Frame {
-		const boolean(&LEDs)[nleds];
+		const uint8_t LEDs;
 		const uint32_t Duration;
-		constexpr LED_Frame(bool const (&inLEDs)[nleds], uint32_t inDuration)
-			:LEDs{ inLEDs }, Duration(inDuration) {};
-		constexpr LED_Frame() = default;
 	};
 
-	template <size_t nleds>
 	class AnimationBase {
 	public:
 		constexpr AnimationBase(unsigned long t, LED_Pattern nxt)
@@ -70,33 +65,34 @@ namespace Xbox360Controller_LEDs {
 			Next(nxt)
 		{}
 
-		virtual LED_Frame<nleds> getFrame(size_t n) const = 0;
+		virtual LED_Frame getFrame(size_t n) const = 0;
 		virtual size_t getNumFrames() const = 0;
 
 		const unsigned long Duration;  // How long to run this pattern, ms
 		const LED_Pattern Next;  // Next pattern to run
 	};
 
-	template<size_t nleds, size_t nframes>
-	class LED_Animation : public AnimationBase<nleds> {
+	template<size_t nframes>
+	class LED_Animation : public AnimationBase {
 	public:
-		constexpr LED_Animation(LED_Frame<nleds> const (&Array)[nframes],
+		constexpr LED_Animation(LED_Frame const (&Array)[nframes],
 			unsigned long t = 0, LED_Pattern nxt = LED_Pattern::Null)
-			: AnimationBase<nleds>(t, nxt), Frames(Array)
+			: AnimationBase(t, nxt), Frames(Array)
 		{}
 
-		using AnimationBase<nleds>::getFrame;
-		using AnimationBase<nleds>::getNumFrames;
+		using AnimationBase::getFrame;
+		using AnimationBase::getNumFrames;
 
-		LED_Frame<nleds> getFrame(size_t n) const {
+		LED_Frame getFrame(size_t n) const {
 			return Frames[n];
 		}
 
 		size_t getNumFrames() const {
 			return nframes;
 		}
+
 	private:
-		const LED_Frame<nleds> Frames[nframes];
+		const LED_Frame Frames[nframes];
 	};
 
 	template <size_t nleds>
@@ -112,20 +108,20 @@ namespace Xbox360Controller_LEDs {
 	template <>
 	class XboxLEDAnimations<1> {
 	public:
-		static const LED_Animation<1, 1> Anim_Off;
-		static const LED_Animation<1, 2> Anim_Blinking;
+		static const LED_Animation<1> Anim_Off;
+		static const LED_Animation<2> Anim_Blinking;
 
-		static const LED_Animation<1, 2> Anim_Flash1;
-		static const LED_Animation<1, 2> Anim_Flash2;
-		static const LED_Animation<1, 2> Anim_Flash3;
-		static const LED_Animation<1, 2> Anim_Flash4;
+		static const LED_Animation<2> Anim_Flash1;
+		static const LED_Animation<2> Anim_Flash2;
+		static const LED_Animation<2> Anim_Flash3;
+		static const LED_Animation<2> Anim_Flash4;
 
-		static const LED_Animation<1, 1> Anim_Player1;
-		static const LED_Animation<1, 4> Anim_Player2;
-		static const LED_Animation<1, 6> Anim_Player3;
-		static const LED_Animation<1, 8> Anim_Player4;
+		static const LED_Animation<1> Anim_Player1;
+		static const LED_Animation<4> Anim_Player2;
+		static const LED_Animation<6> Anim_Player3;
+		static const LED_Animation<8> Anim_Player4;
 
-		static const AnimationBase<1> & getAnimation(LED_Pattern pattern);
+		static const AnimationBase & getAnimation(LED_Pattern pattern);
 
 	protected:
 		static constexpr uint32_t BlinkTime = 450;
@@ -135,32 +131,32 @@ namespace Xbox360Controller_LEDs {
 		static constexpr uint32_t PlayerTime = 200;
 		static constexpr uint32_t PlayerLoopTime = 1500;
 
-		static constexpr boolean On[1] = { 0 };
-		static constexpr boolean Off[1] = { 1 };
+		static constexpr uint8_t On  = 1;
+		static constexpr uint8_t Off = 0;
 	};
 
 	template <>
 	class XboxLEDAnimations<4> {
 	public:
-		static const LED_Animation<4, 1> Anim_Off;
-		static const LED_Animation<4, 2> Anim_Blinking;
-		static const LED_Animation<4, 2> Anim_BlinkOnce;
-		static const LED_Animation<4, 2> Anim_BlinkSlow;
+		static const LED_Animation<1> Anim_Off;
+		static const LED_Animation<2> Anim_Blinking;
+		static const LED_Animation<2> Anim_BlinkOnce;
+		static const LED_Animation<2> Anim_BlinkSlow;
 
-		static const LED_Animation<4, 2> Anim_Flash1;
-		static const LED_Animation<4, 2> Anim_Flash2;
-		static const LED_Animation<4, 2> Anim_Flash3;
-		static const LED_Animation<4, 2> Anim_Flash4;
+		static const LED_Animation<2> Anim_Flash1;
+		static const LED_Animation<2> Anim_Flash2;
+		static const LED_Animation<2> Anim_Flash3;
+		static const LED_Animation<2> Anim_Flash4;
 
-		static const LED_Animation<4, 1> Anim_Player1;
-		static const LED_Animation<4, 1> Anim_Player2;
-		static const LED_Animation<4, 1> Anim_Player3;
-		static const LED_Animation<4, 1> Anim_Player4;
+		static const LED_Animation<1> Anim_Player1;
+		static const LED_Animation<1> Anim_Player2;
+		static const LED_Animation<1> Anim_Player3;
+		static const LED_Animation<1> Anim_Player4;
 
-		static const LED_Animation<4, 4> Anim_Rotating;
-		static const LED_Animation<4, 2> Anim_Alternating;
+		static const LED_Animation<4> Anim_Rotating;
+		static const LED_Animation<2> Anim_Alternating;
 
-		static const AnimationBase<4> & getAnimation(LED_Pattern pattern);
+		static const AnimationBase & getAnimation(LED_Pattern pattern);
 
 	protected:
 		static constexpr uint32_t BlinkTime = 300;
@@ -169,16 +165,16 @@ namespace Xbox360Controller_LEDs {
 
 		static constexpr uint32_t PlayerBlinkCount = 3;
 
-		static constexpr boolean States_Off[4] = { 0, 0, 0, 0 };
-		static constexpr boolean States_On[4] = { 1, 1, 1, 1 };
+		static constexpr uint8_t States_Off = 0b0000;
+		static constexpr uint8_t States_On  = 0b1111;
 
-		static constexpr boolean States_Player1[4] = { 1, 0, 0, 0 };
-		static constexpr boolean States_Player2[4] = { 0, 1, 0, 0 };
-		static constexpr boolean States_Player3[4] = { 0, 0, 1, 0 };
-		static constexpr boolean States_Player4[4] = { 0, 0, 0, 1 };
+		static constexpr uint8_t States_Player1 = (1 << 0);
+		static constexpr uint8_t States_Player2 = (1 << 1);
+		static constexpr uint8_t States_Player3 = (1 << 2);
+		static constexpr uint8_t States_Player4 = (1 << 3);
 
-		static constexpr boolean States_Op1[4] = { 1, 0, 1, 0 };
-		static constexpr boolean States_Op2[4] = { 0, 1, 0, 1 };
+		static constexpr uint8_t States_Op1 = 0b1010;
+		static constexpr uint8_t States_Op2 = 0b0101;
 	};
 
 	class XboxLEDBase {
@@ -195,7 +191,7 @@ namespace Xbox360Controller_LEDs {
 	class XboxLEDHandler : public XboxLEDBase {
 	public:
 		static const size_t NumLEDs = sizeof... (pins);  // # of pins = # of LEDs
-		using Animation = AnimationBase<NumLEDs>;
+		using Animation = AnimationBase;
 
 		XboxLEDHandler(const bool inv = false) :
 			Pins{ pins... },
@@ -298,7 +294,7 @@ namespace Xbox360Controller_LEDs {
 			if (index >= animation->getNumFrames()) return;  // Out of range
 
 			for (uint8_t i = 0; i < NumLEDs; i++) {
-				state[i] = animation->getFrame(index).LEDs[i];
+				state[i] = animation->getFrame(index).LEDs & (1 << i);
 			}
 		}
 
