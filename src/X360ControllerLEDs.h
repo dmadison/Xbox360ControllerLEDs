@@ -200,10 +200,9 @@ namespace Xbox360Controller_LEDs {
 		void setPattern(LED_Pattern pattern);
 		void receivePattern(LED_Pattern pattern);
 
-		void run();
-
 		LED_Pattern getPattern() const;
-		uint8_t getPlayerNumber() const;
+
+		void run();
 
 	protected:
 		virtual const Animation & getAnimation(LED_Pattern pattern) const = 0;

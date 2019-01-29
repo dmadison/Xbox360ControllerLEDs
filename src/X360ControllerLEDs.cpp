@@ -107,24 +107,6 @@ LED_Pattern XboxLEDHandler::getPattern() const {
 	return currentPattern;  // Current pattern as enum
 }
 
-uint8_t XboxLEDHandler::getPlayerNumber() const {
-	switch (currentPattern) {
-	case(LED_Pattern::Flash1):
-	case(LED_Pattern::Player1):
-		return 1;
-	case(LED_Pattern::Flash2):
-	case(LED_Pattern::Player2):
-		return 2;
-	case(LED_Pattern::Flash3):
-	case(LED_Pattern::Player3):
-		return 3;
-	case(LED_Pattern::Flash4):
-	case(LED_Pattern::Player4):
-		return 4;
-	default: return 0;
-	}
-}
-
 
 //  --- 1 LED Animations -----------------------------------------------------
 

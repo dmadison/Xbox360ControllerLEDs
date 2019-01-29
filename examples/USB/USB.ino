@@ -38,7 +38,6 @@ XboxControllerLEDs<LED_Pins[0], LED_Pins[1], LED_Pins[2], LED_Pins[3]> leds;  //
 
 volatile XboxLEDPattern pattern = XboxLEDPattern::Off;
 XboxLEDPattern lastPattern = XboxLEDPattern::Off;
-uint8_t playerNumber = 0;
 
 void setup() {
 	leds.begin();  // Initialize pins
@@ -49,7 +48,6 @@ void loop() {
 	if (pattern != lastPattern) {
 		lastPattern = pattern;  // Save pattern for reference
 		leds.receivePattern(lastPattern);  // Set pattern and use linked pattern features
-		playerNumber = leds.getPlayerNumber();  // Update player number from LED pattern
 	}
 	
 	leds.run();

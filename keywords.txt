@@ -26,7 +26,6 @@ begin	KEYWORD2
 setPattern	KEYWORD2
 receivePattern	KEYWORD2
 getPattern	KEYWORD2
-getPlayerNumber	KEYWORD2
 
 # Process
 run	KEYWORD2
