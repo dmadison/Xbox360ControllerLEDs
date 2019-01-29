@@ -204,12 +204,16 @@ namespace Xbox360Controller_LEDs {
 		uint8_t getPlayerNumber() const;
 
 	protected:
-		void setPattern(LED_Pattern pattern, boolean runNow);
-		
 		void runFrame();
 
-		virtual const Animation & getAnimation() const = 0;
+		virtual const Animation & getAnimation(LED_Pattern pattern) const = 0;
 		virtual void setLEDs(uint8_t ledStates) = 0;
+
+		// Animation Information
+		const Animation * currentAnimation;
+
+	private:
+		void setPattern(LED_Pattern pattern, boolean runNow);
 
 		// LED Information
 		boolean linkPatterns = false;
@@ -219,7 +223,6 @@ namespace Xbox360Controller_LEDs {
 		LED_Pattern previousPattern;
 
 		// Animation Information
-		const Animation * currentAnimation;
 		uint8_t frameIndex = 0;
 
 		// Timestamps (ms)
@@ -239,7 +242,7 @@ namespace Xbox360Controller_LEDs {
 			Pins{ pins... },
 			Inverted(inv)
 		{
-			currentAnimation = &getAnimation();
+			currentAnimation = &XboxLED_IndividualPins::getAnimation(getPattern());  // Init animation pointer
 		}
 
 		void begin() {  // Initialize LED outputs
@@ -255,8 +258,8 @@ namespace Xbox360Controller_LEDs {
 		}
 
 	protected:
-		const Animation & getAnimation() const {
-			return XboxLEDAnimations<NumLEDs>::getAnimation(currentPattern);
+		const Animation & getAnimation(LED_Pattern pattern) const {
+			return XboxLEDAnimations<NumLEDs>::getAnimation(pattern);
 		}
 
 		void setLEDs(uint8_t ledStates) {

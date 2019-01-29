@@ -63,7 +63,7 @@ void XboxLEDHandler::setPattern(LED_Pattern pattern, boolean runNow) {
 
 	currentPattern = pattern;  // Save pattern (enum)
 
-	const Animation * newAnimation = &getAnimation();
+	const Animation * newAnimation = &getAnimation(currentPattern);
 	if (currentAnimation == newAnimation) return;  // Different pattern, same animation
 	currentAnimation = newAnimation;  // Save animation (pointer)
 
