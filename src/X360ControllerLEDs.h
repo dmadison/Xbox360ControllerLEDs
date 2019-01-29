@@ -209,11 +209,10 @@ namespace Xbox360Controller_LEDs {
 		void runFrame();
 
 		virtual const Animation & getAnimation() const = 0;
-		virtual void setLEDs() = 0;
+		virtual void setLEDs(uint8_t ledStates) = 0;
 
 		// LED Information
 		boolean linkPatterns = false;
-		uint8_t ledStates;
 
 		// Pattern Information (Enum)
 		LED_Pattern currentPattern;
@@ -260,7 +259,7 @@ namespace Xbox360Controller_LEDs {
 			return XboxLEDAnimations<NumLEDs>::getAnimation(currentPattern);
 		}
 
-		void setLEDs() {
+		void setLEDs(uint8_t ledStates) {
 			for (uint8_t i = 0; i < NumLEDs; i++) {
 				digitalWrite(Pins[i], !(ledStates & (1 << i)) != !Inverted);
 			}
