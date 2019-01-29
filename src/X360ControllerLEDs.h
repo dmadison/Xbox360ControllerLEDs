@@ -264,23 +264,20 @@ namespace Xbox360Controller_LEDs {
 
 		void parseFrame(const Animation * animation, uint32_t index) {
 			if (index >= animation->getNumFrames()) return;  // Out of range
-
-			for (uint8_t i = 0; i < NumLEDs; i++) {
-				state[i] = animation->getFrame(index).LEDs & (1 << i);
-			}
+			ledStates = animation->getFrame(index).LEDs;
 			time_frameDuration = animation->getFrame(frameIndex).Duration * LED_Frame::Timescale;  // Save current frame duration as ms
 		}
 
 		void setLEDs() {
 			for (uint8_t i = 0; i < NumLEDs; i++) {
-				digitalWrite(Pins[i], state[i] ^ Inverted);
+				digitalWrite(Pins[i], !(ledStates & (1 << i)) != !Inverted);
 			}
 		}
 
 		// LED Information
 		const uint8_t Pins[NumLEDs];
 		const boolean Inverted = false;  // Flag for inverted output
-		boolean state[NumLEDs];
+		uint8_t ledStates;
 	};
 
 }  // End namespace
