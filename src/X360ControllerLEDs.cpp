@@ -28,6 +28,90 @@
 
 namespace Xbox360Controller_LEDs {
 
+//  --- LED Handler Class Base -----------------------------------------------
+
+XboxLEDBase::XboxLEDBase() :
+	currentPattern(LED_Pattern::Off),
+	previousPattern(currentPattern)
+{}
+
+void XboxLEDBase::setPattern(LED_Pattern pattern) {
+	if ((uint8_t)pattern >= XboxLEDBase::NumPatterns) return;  // Meta pattern, ignore
+	linkPatterns = false;  // Don't auto-link to the next pattern
+	setPattern(pattern, true);  // Screw it, do the pattern NOW
+}
+
+void XboxLEDBase::receivePattern(LED_Pattern pattern) {
+	if ((uint8_t)pattern >= XboxLEDBase::NumPatterns) return;  // Meta pattern, ignore
+	linkPatterns = true;  // Auto-link to the next pattern if available
+	setPattern(pattern, false);  // Set pattern, but don't run immediately if it is next pattern in queue
+}
+
+void XboxLEDBase::setPattern(LED_Pattern pattern, boolean runNow) {
+	if (currentPattern == pattern) return;  // No change
+	if (runNow == false && pattern == currentAnimation->Next) return;  // That's the next pattern! We'll get there...
+
+	// If pattern says go back, load prevous pattern
+	if (pattern == LED_Pattern::Previous) {
+		pattern = previousPattern;
+	}
+
+	// If not currently running a temporary pattern, save as previous
+	if (currentAnimation->Next != LED_Pattern::Previous) {
+		previousPattern = currentPattern;  // Save current pattern as previous
+	}
+
+	currentPattern = pattern;  // Save pattern (enum)
+
+	const Animation * newAnimation = &getAnimation();
+	if (currentAnimation == newAnimation) return;  // Different pattern, same animation
+	currentAnimation = newAnimation;  // Save animation (pointer)
+
+	frameIndex = 0;
+	time_animationDuration = currentAnimation->Duration * AnimationBase::Timescale;  // Save animation time in ms
+	time_animationLast = time_frameLast = millis();  // Now
+	runFrame();  // Run once
+}
+
+void XboxLEDBase::run() {
+	if (currentAnimation->getNumFrames() <= 1 || time_frameDuration == 0) return;  // No processing necessary
+	if (millis() - time_frameLast < time_frameDuration) return;  // Not time yet
+
+	// Check if it's time to switch to the next pattern
+	if (linkPatterns && time_animationDuration != 0 && millis() - time_animationLast >= time_animationDuration) {
+		setPattern(currentAnimation->Next, true);  // Run next pattern + override "Next" check
+		return;
+	}
+
+	time_frameLast = millis();  // Save time
+	frameIndex++;  // Go to next frame
+	if (frameIndex >= currentAnimation->getNumFrames()) frameIndex = 0;  // If at last frame, go to start
+	runFrame();  // Write current frame to LEDs
+}
+
+LED_Pattern XboxLEDBase::getPattern() const {
+	return currentPattern;  // Current pattern as enum
+}
+
+uint8_t XboxLEDBase::getPlayerNumber() const {
+	switch (currentPattern) {
+	case(LED_Pattern::Flash1):
+	case(LED_Pattern::Player1):
+		return 1;
+	case(LED_Pattern::Flash2):
+	case(LED_Pattern::Player2):
+		return 2;
+	case(LED_Pattern::Flash3):
+	case(LED_Pattern::Player3):
+		return 3;
+	case(LED_Pattern::Flash4):
+	case(LED_Pattern::Player4):
+		return 4;
+	default: return 0;
+	}
+}
+
+
 //  --- 1 LED Animations -----------------------------------------------------
 
 constexpr uint8_t XboxLEDAnimations<1>::On;

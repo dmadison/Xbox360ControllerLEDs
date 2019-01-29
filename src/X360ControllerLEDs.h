@@ -189,26 +189,56 @@ namespace Xbox360Controller_LEDs {
 	class XboxLEDBase {
 	public:
 		static const uint8_t NumPatterns = 14;
+		using Animation = AnimationBase;
+
+		XboxLEDBase();
 
 		virtual void begin() = 0;
-		virtual void setPattern(LED_Pattern) = 0;
-		virtual void receivePattern(LED_Pattern) = 0;
-		virtual void run() = 0;
+
+		void setPattern(LED_Pattern pattern);
+		void receivePattern(LED_Pattern pattern);
+
+		void run();
+
+		LED_Pattern getPattern() const;
+		uint8_t getPlayerNumber() const;
+
+	protected:
+		void setPattern(LED_Pattern pattern, boolean runNow);
+
+		virtual const Animation & getAnimation() const = 0;
+		virtual void runFrame() = 0;
+
+		// LED Information
+		boolean linkPatterns = false;
+
+		// Pattern Information (Enum)
+		LED_Pattern currentPattern;
+		LED_Pattern previousPattern;
+
+		// Animation Information
+		const Animation * currentAnimation;
+		uint8_t frameIndex = 0;
+
+		// Timestamps (ms)
+		unsigned long time_frameLast = 0;
+		unsigned long time_frameDuration = 0;
+		unsigned long time_animationLast = 0;
+		unsigned long time_animationDuration = 0;
 	};
 
 	template <uint8_t ...pins>
 	class XboxLEDHandler : public XboxLEDBase {
 	public:
 		static const size_t NumLEDs = sizeof... (pins);  // # of pins = # of LEDs
-		using Animation = AnimationBase;
 
 		XboxLEDHandler(const bool inv = false) :
+			XboxLEDBase(),
 			Pins{ pins... },
-			Inverted(inv),
-			currentPattern(LED_Pattern::Off),
-			previousPattern(currentPattern),
-			currentAnimation(&XboxLEDAnimations<NumLEDs>::getAnimation(currentPattern))
-		{}
+			Inverted(inv)
+		{
+			currentAnimation = &getAnimation();
+		}
 
 		void begin() {  // Initialize LED outputs
 			for (uint8_t i = 0; i < NumLEDs; i++) {
@@ -218,81 +248,13 @@ namespace Xbox360Controller_LEDs {
 			runFrame();  // Set LEDs
 		}
 
-		void setPattern(LED_Pattern pattern) {
-			if ((uint8_t)pattern >= XboxLEDBase::NumPatterns) return;  // Meta pattern, ignore
-			linkPatterns = false;  // Don't auto-link to the next pattern
-			setPattern(pattern, true);  // Screw it, do the pattern NOW
+		constexpr uint8_t getNumLEDs() const {
+			return NumLEDs;
 		}
 
-		void receivePattern(LED_Pattern pattern) {
-			if ((uint8_t)pattern >= XboxLEDBase::NumPatterns) return;  // Meta pattern, ignore
-			linkPatterns = true;  // Auto-link to the next pattern if available
-			setPattern(pattern, false);  // Set pattern, but don't run immediately if it is next pattern in queue
-		}
-
-		LED_Pattern getPattern() const {
-			return currentPattern;  // Current pattern as enum
-		}
-
-		uint8_t getPlayerNumber() const {
-			switch (currentPattern) {
-			case(LED_Pattern::Flash1):
-			case(LED_Pattern::Player1):
-				return 1;
-			case(LED_Pattern::Flash2):
-			case(LED_Pattern::Player2):
-				return 2;
-			case(LED_Pattern::Flash3):
-			case(LED_Pattern::Player3):
-				return 3;
-			case(LED_Pattern::Flash4):
-			case(LED_Pattern::Player4):
-				return 4;
-			default: return 0;
-			}
-		}
-
-		void run() {
-			if (currentAnimation->getNumFrames() <= 1 || time_frameDuration == 0) return;  // No processing necessary
-			if (millis() - time_frameLast < time_frameDuration) return;  // Not time yet
-
-			// Check if it's time to switch to the next pattern
-			if (linkPatterns && time_animationDuration != 0 && millis() - time_animationLast >= time_animationDuration) {
-				setPattern(currentAnimation->Next, true);  // Run next pattern + override "Next" check
-				return;
-			}
-
-			time_frameLast = millis();  // Save time
-			frameIndex++;  // Go to next frame
-			if (frameIndex >= currentAnimation->getNumFrames()) frameIndex = 0;  // If at last frame, go to start
-			runFrame();  // Write current frame to LEDs
-		}
-
-	private:
-		void setPattern(LED_Pattern pattern, boolean runNow) {
-			if (currentPattern == pattern) return;  // No change
-			if (runNow == false && pattern == currentAnimation->Next) return;  // That's the next pattern! We'll get there...
-
-			// If pattern says go back, load prevous pattern
-			if (pattern == LED_Pattern::Previous) {
-				pattern = previousPattern;
-			}
-
-			// If not currently running a temporary pattern, save as previous
-			if (currentAnimation->Next != LED_Pattern::Previous) {
-				previousPattern = currentPattern;  // Save current pattern as previous
-			}
-
-			currentPattern = pattern;  // Save pattern (enum)
-
-			const Animation * newAnimation = &XboxLEDAnimations<NumLEDs>::getAnimation(currentPattern);
-			if (currentAnimation == newAnimation) return;  // Different pattern, same animation
-			currentAnimation = newAnimation;  // Save animation (pointer)
-
-			frameIndex = 0;
-			time_animationDuration = currentAnimation->Duration * AnimationBase::Timescale;  // Save animation time in ms
-			time_animationLast = time_frameLast = millis();  // Now
-			runFrame();  // Run once
+	protected:
+		const Animation & getAnimation() const {
+			return XboxLEDAnimations<NumLEDs>::getAnimation(currentPattern);
 		}
 
 		void runFrame() {
@@ -317,19 +279,8 @@ namespace Xbox360Controller_LEDs {
 
 		// LED Information
 		const uint8_t Pins[NumLEDs];
-		const boolean Inverted = false;
+		const boolean Inverted = false;  // Flag for inverted output
 		boolean state[NumLEDs];
-		boolean linkPatterns = false;
-
-		// Current Pattern Information
-		LED_Pattern currentPattern;
-		LED_Pattern previousPattern;
-		const Animation * currentAnimation;
-		uint8_t frameIndex = 0;
-		unsigned long time_frameLast = 0;
-		unsigned long time_frameDuration = 0;
-		unsigned long time_animationLast = 0;
-		unsigned long time_animationDuration = 0;
 	};
 
 }  // End namespace
