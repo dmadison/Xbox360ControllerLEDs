@@ -121,17 +121,7 @@ namespace Xbox360Controller_LEDs {
 
 	template <>
 	class XboxLEDAnimations<1> : public XboxLEDBase {
-	protected:
-		static constexpr uint32_t BlinkTime = 450;
-		static constexpr uint32_t FlashTime = 80;
-
-		static constexpr uint32_t PlayerFlashTime = 1000;
-		static constexpr uint32_t PlayerTime = 200;
-		static constexpr uint32_t PlayerLoopTime = 1500;
-
-		static constexpr boolean On[1] = { 0 };
-		static constexpr boolean Off[1] = { 1 };
-
+	public:
 		static const LED_Animation<1, 1> Anim_Off;
 		static const LED_Animation<1, 2> Anim_Blinking;
 
@@ -146,28 +136,22 @@ namespace Xbox360Controller_LEDs {
 		static const LED_Animation<1, 8> Anim_Player4;
 
 		static const AnimationBase<1> & getAnimation(LED_Pattern pattern);
+
+	protected:
+		static constexpr uint32_t BlinkTime = 450;
+		static constexpr uint32_t FlashTime = 80;
+
+		static constexpr uint32_t PlayerFlashTime = 1000;
+		static constexpr uint32_t PlayerTime = 200;
+		static constexpr uint32_t PlayerLoopTime = 1500;
+
+		static constexpr boolean On[1] = { 0 };
+		static constexpr boolean Off[1] = { 1 };
 	};
 
 	template <>
 	class XboxLEDAnimations<4> : public XboxLEDBase {
-	protected:
-		static constexpr uint32_t BlinkTime = 300;
-		static constexpr uint32_t BlinkSlow = 700;
-		static constexpr uint32_t RotateTime = 100;
-
-		static constexpr uint32_t PlayerBlinkCount = 3;
-
-		static constexpr boolean States_Off[4] = { 0, 0, 0, 0 };
-		static constexpr boolean States_On[4] = { 1, 1, 1, 1 };
-
-		static constexpr boolean States_Player1[4] = { 1, 0, 0, 0 };
-		static constexpr boolean States_Player2[4] = { 0, 1, 0, 0 };
-		static constexpr boolean States_Player3[4] = { 0, 0, 1, 0 };
-		static constexpr boolean States_Player4[4] = { 0, 0, 0, 1 };
-
-		static constexpr boolean States_Op1[4] = { 1, 0, 1, 0 };
-		static constexpr boolean States_Op2[4] = { 0, 1, 0, 1 };
-
+	public:
 		static const LED_Animation<4, 1> Anim_Off;
 		static const LED_Animation<4, 2> Anim_Blinking;
 		static const LED_Animation<4, 2> Anim_BlinkOnce;
@@ -187,6 +171,24 @@ namespace Xbox360Controller_LEDs {
 		static const LED_Animation<4, 2> Anim_Alternating;
 
 		static const AnimationBase<4> & getAnimation(LED_Pattern pattern);
+
+	protected:
+		static constexpr uint32_t BlinkTime = 300;
+		static constexpr uint32_t BlinkSlow = 700;
+		static constexpr uint32_t RotateTime = 100;
+
+		static constexpr uint32_t PlayerBlinkCount = 3;
+
+		static constexpr boolean States_Off[4] = { 0, 0, 0, 0 };
+		static constexpr boolean States_On[4] = { 1, 1, 1, 1 };
+
+		static constexpr boolean States_Player1[4] = { 1, 0, 0, 0 };
+		static constexpr boolean States_Player2[4] = { 0, 1, 0, 0 };
+		static constexpr boolean States_Player3[4] = { 0, 0, 1, 0 };
+		static constexpr boolean States_Player4[4] = { 0, 0, 0, 1 };
+
+		static constexpr boolean States_Op1[4] = { 1, 0, 1, 0 };
+		static constexpr boolean States_Op2[4] = { 0, 1, 0, 1 };
 	};
 
 	template <uint8_t ...pins>
