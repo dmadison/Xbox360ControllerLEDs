@@ -67,15 +67,17 @@ namespace Xbox360Controller_LEDs {
 
 	class AnimationBase {
 	public:
+		static const unsigned long Timescale = 100;  // x ms = 1 tick
+		
 		constexpr AnimationBase(unsigned long t, LED_Pattern nxt)
-			: Duration(t),
+			: Duration(t / Timescale),
 			Next(nxt)
 		{}
 
 		virtual LED_Frame getFrame(size_t n) const = 0;
 		virtual size_t getNumFrames() const = 0;
 
-		const unsigned long Duration;  // How long to run this pattern, ms
+		const uint8_t Duration;  // How long to run this pattern, # of ticks
 		const LED_Pattern Next;  // Next pattern to run
 	};
 
@@ -255,7 +257,7 @@ namespace Xbox360Controller_LEDs {
 			if (millis() - time_frameLast < currentAnimation->getFrame(frameIndex).Duration * LED_Frame::Timescale) return;  // Not time yet
 
 			// Check if it's time to switch to the next pattern
-			if (linkPatterns && currentAnimation->Duration != 0 && millis() - time_animationLast >= currentAnimation->Duration) {
+			if (linkPatterns && currentAnimation->Duration != 0 && millis() - time_animationLast >= currentAnimation->Duration * AnimationBase::Timescale) {
 				setPattern(currentAnimation->Next, true);  // Run next pattern + override "Next" check
 				return;
 			}
