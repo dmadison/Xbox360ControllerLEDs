@@ -1,0 +1,56 @@
+#######################################
+# Syntax Coloring Map For Xbox 360 Controller LEDs Library
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+# Library
+X360ControllerLEDs	KEYWORD1
+
+# Classes
+XboxControllerLEDs	KEYWORD1
+
+# Enums
+XboxLEDPattern	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+# Setup
+begin	KEYWORD2
+
+# Pattern Data
+setPattern	KEYWORD2
+receivePattern	KEYWORD2
+getPattern	KEYWORD2
+getPlayerNumber	KEYWORD2
+
+# Process
+run	KEYWORD2
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+# LED Patterns
+Off	LITERAL1
+Blinking	LITERAL1
+Flash1	LITERAL1
+Flash2	LITERAL1
+Flash3	LITERAL1
+Flash4	LITERAL1
+Player1	LITERAL1
+Player2	LITERAL1
+Player3	LITERAL1
+Player4	LITERAL1
+Rotating	LITERAL1
+BlinkOnce	LITERAL1
+BlinkSlow	LITERAL1
+Alternating	LITERAL1
