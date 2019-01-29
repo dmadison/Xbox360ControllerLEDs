@@ -73,6 +73,14 @@ void XboxLEDHandler::setPattern(LED_Pattern pattern, boolean runNow) {
 	runFrame();  // Run once
 }
 
+void XboxLEDHandler::runFrame() {
+	const LED_Frame & frame = currentAnimation->getFrame(frameIndex);
+	ledStates = frame.LEDs;  // Save LED states to variable
+	time_frameDuration = frame.Duration * LED_Frame::Timescale;  // Save current frame duration as ms
+
+	setLEDs();  // Set LEDs to current frame
+}
+
 void XboxLEDHandler::run() {
 	if (currentAnimation->getNumFrames() <= 1 || time_frameDuration == 0) return;  // No processing necessary
 	if (millis() - time_frameLast < time_frameDuration) return;  // Not time yet

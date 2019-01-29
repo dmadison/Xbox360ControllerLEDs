@@ -205,12 +205,15 @@ namespace Xbox360Controller_LEDs {
 
 	protected:
 		void setPattern(LED_Pattern pattern, boolean runNow);
+		
+		void runFrame();
 
 		virtual const Animation & getAnimation() const = 0;
-		virtual void runFrame() = 0;
+		virtual void setLEDs() = 0;
 
 		// LED Information
 		boolean linkPatterns = false;
+		uint8_t ledStates;
 
 		// Pattern Information (Enum)
 		LED_Pattern currentPattern;
@@ -257,17 +260,6 @@ namespace Xbox360Controller_LEDs {
 			return XboxLEDAnimations<NumLEDs>::getAnimation(currentPattern);
 		}
 
-		void runFrame() {
-			parseFrame(currentAnimation, frameIndex);
-			setLEDs();
-		}
-
-		void parseFrame(const Animation * animation, uint32_t index) {
-			if (index >= animation->getNumFrames()) return;  // Out of range
-			ledStates = animation->getFrame(index).LEDs;
-			time_frameDuration = animation->getFrame(frameIndex).Duration * LED_Frame::Timescale;  // Save current frame duration as ms
-		}
-
 		void setLEDs() {
 			for (uint8_t i = 0; i < NumLEDs; i++) {
 				digitalWrite(Pins[i], !(ledStates & (1 << i)) != !Inverted);
@@ -277,7 +269,6 @@ namespace Xbox360Controller_LEDs {
 		// LED Information
 		const uint8_t Pins[NumLEDs];
 		const boolean Inverted = false;  // Flag for inverted output
-		uint8_t ledStates;
 	};
 
 }  // End namespace
