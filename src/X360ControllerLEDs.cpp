@@ -28,11 +28,19 @@
 
 namespace Xbox360Controller_LEDs {
 
+// Dummy animation to populate the currentAnimation pointer
+static const LED_Animation<1> Animation_Null(
+	{ LED_Frame(0, 0) },  // No LEDs lit, infinite frame duration
+	0,                    // Infinite animation duration
+	LED_Pattern::Null     // Next animation is no animation
+);
+
 //  --- LED Handler Class Base -----------------------------------------------
 
 XboxLEDHandler::XboxLEDHandler() :
-	currentPattern(LED_Pattern::Off),
-	previousPattern(currentPattern)
+	currentPattern(LED_Pattern::Null),  // Not a pattern
+	previousPattern(currentPattern),
+	currentAnimation(&Xbox360Controller_LEDs::Animation_Null)
 {}
 
 void XboxLEDHandler::setPattern(LED_Pattern pattern) {
