@@ -110,7 +110,7 @@ namespace Xbox360Controller_LEDs {
 	};
 
 	template <size_t nleds>
-	class XboxLEDAnimations : public XboxLEDBase {
+	class XboxLEDAnimations {
 	public:
 		constexpr XboxLEDAnimations() {
 			static_assert(nleds == 4 || nleds == 1,
@@ -120,7 +120,7 @@ namespace Xbox360Controller_LEDs {
 	};
 
 	template <>
-	class XboxLEDAnimations<1> : public XboxLEDBase {
+	class XboxLEDAnimations<1> {
 	public:
 		static const LED_Animation<1, 1> Anim_Off;
 		static const LED_Animation<1, 2> Anim_Blinking;
@@ -150,7 +150,7 @@ namespace Xbox360Controller_LEDs {
 	};
 
 	template <>
-	class XboxLEDAnimations<4> : public XboxLEDBase {
+	class XboxLEDAnimations<4> {
 	public:
 		static const LED_Animation<4, 1> Anim_Off;
 		static const LED_Animation<4, 2> Anim_Blinking;
@@ -192,7 +192,7 @@ namespace Xbox360Controller_LEDs {
 	};
 
 	template <uint8_t ...pins>
-	class XboxLEDHandler : public XboxLEDAnimations<sizeof... (pins)> {
+	class XboxLEDHandler : public XboxLEDBase {
 	public:
 		static const size_t NumLEDs = sizeof... (pins);  // # of pins = # of LEDs
 		using Animation = AnimationBase<NumLEDs>;
