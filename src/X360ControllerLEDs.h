@@ -253,11 +253,11 @@ namespace Xbox360Controller_LEDs {
 		}
 
 		void run() {
-			if (currentAnimation->getNumFrames() <= 1 || currentAnimation->getFrame(frameIndex).Duration == 0) return;  // No processing necessary
-			if (millis() - time_frameLast < currentAnimation->getFrame(frameIndex).Duration * LED_Frame::Timescale) return;  // Not time yet
+			if (currentAnimation->getNumFrames() <= 1 || time_frameDuration == 0) return;  // No processing necessary
+			if (millis() - time_frameLast < time_frameDuration) return;  // Not time yet
 
 			// Check if it's time to switch to the next pattern
-			if (linkPatterns && currentAnimation->Duration != 0 && millis() - time_animationLast >= currentAnimation->Duration * AnimationBase::Timescale) {
+			if (linkPatterns && time_animationDuration != 0 && millis() - time_animationLast >= time_animationDuration) {
 				setPattern(currentAnimation->Next, true);  // Run next pattern + override "Next" check
 				return;
 			}
@@ -290,6 +290,7 @@ namespace Xbox360Controller_LEDs {
 			currentAnimation = newAnimation;  // Save animation (pointer)
 
 			frameIndex = 0;
+			time_animationDuration = currentAnimation->Duration * AnimationBase::Timescale;  // Save animation time in ms
 			time_animationLast = time_frameLast = millis();  // Now
 			runFrame();  // Run once
 		}
@@ -305,6 +306,7 @@ namespace Xbox360Controller_LEDs {
 			for (uint8_t i = 0; i < NumLEDs; i++) {
 				state[i] = animation->getFrame(index).LEDs & (1 << i);
 			}
+			time_frameDuration = animation->getFrame(frameIndex).Duration * LED_Frame::Timescale;  // Save current frame duration as ms
 		}
 
 		void setLEDs() {
@@ -325,7 +327,9 @@ namespace Xbox360Controller_LEDs {
 		const Animation * currentAnimation;
 		uint8_t frameIndex = 0;
 		unsigned long time_frameLast = 0;
+		unsigned long time_frameDuration = 0;
 		unsigned long time_animationLast = 0;
+		unsigned long time_animationDuration = 0;
 	};
 
 }  // End namespace
