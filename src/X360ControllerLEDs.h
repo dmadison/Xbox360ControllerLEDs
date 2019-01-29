@@ -186,12 +186,12 @@ namespace Xbox360Controller_LEDs {
 		static constexpr uint8_t States_Op2 = 0b0101;
 	};
 
-	class XboxLEDBase {
+	class XboxLEDHandler {
 	public:
 		static const uint8_t NumPatterns = 14;
 		using Animation = AnimationBase;
 
-		XboxLEDBase();
+		XboxLEDHandler();
 
 		virtual void begin() = 0;
 
@@ -228,12 +228,12 @@ namespace Xbox360Controller_LEDs {
 	};
 
 	template <uint8_t ...pins>
-	class XboxLEDHandler : public XboxLEDBase {
+	class XboxLED_IndividualPins : public XboxLEDHandler {
 	public:
 		static const size_t NumLEDs = sizeof... (pins);  // # of pins = # of LEDs
 
-		XboxLEDHandler(const bool inv = false) :
-			XboxLEDBase(),
+		XboxLED_IndividualPins(const bool inv = false) :
+			XboxLEDHandler(),
 			Pins{ pins... },
 			Inverted(inv)
 		{
@@ -289,6 +289,6 @@ namespace Xbox360Controller_LEDs {
 using XboxLEDPattern = Xbox360Controller_LEDs::LED_Pattern;
 
 template<uint8_t ...pins>
-using XboxControllerLEDs = Xbox360Controller_LEDs::XboxLEDHandler<pins...>;
+using XboxControllerLEDs = Xbox360Controller_LEDs::XboxLED_IndividualPins<pins...>;
 
 #endif

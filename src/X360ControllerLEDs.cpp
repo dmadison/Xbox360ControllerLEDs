@@ -30,24 +30,24 @@ namespace Xbox360Controller_LEDs {
 
 //  --- LED Handler Class Base -----------------------------------------------
 
-XboxLEDBase::XboxLEDBase() :
+XboxLEDHandler::XboxLEDHandler() :
 	currentPattern(LED_Pattern::Off),
 	previousPattern(currentPattern)
 {}
 
-void XboxLEDBase::setPattern(LED_Pattern pattern) {
-	if ((uint8_t)pattern >= XboxLEDBase::NumPatterns) return;  // Meta pattern, ignore
+void XboxLEDHandler::setPattern(LED_Pattern pattern) {
+	if ((uint8_t)pattern >= XboxLEDHandler::NumPatterns) return;  // Meta pattern, ignore
 	linkPatterns = false;  // Don't auto-link to the next pattern
 	setPattern(pattern, true);  // Screw it, do the pattern NOW
 }
 
-void XboxLEDBase::receivePattern(LED_Pattern pattern) {
-	if ((uint8_t)pattern >= XboxLEDBase::NumPatterns) return;  // Meta pattern, ignore
+void XboxLEDHandler::receivePattern(LED_Pattern pattern) {
+	if ((uint8_t)pattern >= XboxLEDHandler::NumPatterns) return;  // Meta pattern, ignore
 	linkPatterns = true;  // Auto-link to the next pattern if available
 	setPattern(pattern, false);  // Set pattern, but don't run immediately if it is next pattern in queue
 }
 
-void XboxLEDBase::setPattern(LED_Pattern pattern, boolean runNow) {
+void XboxLEDHandler::setPattern(LED_Pattern pattern, boolean runNow) {
 	if (currentPattern == pattern) return;  // No change
 	if (runNow == false && pattern == currentAnimation->Next) return;  // That's the next pattern! We'll get there...
 
@@ -73,7 +73,7 @@ void XboxLEDBase::setPattern(LED_Pattern pattern, boolean runNow) {
 	runFrame();  // Run once
 }
 
-void XboxLEDBase::run() {
+void XboxLEDHandler::run() {
 	if (currentAnimation->getNumFrames() <= 1 || time_frameDuration == 0) return;  // No processing necessary
 	if (millis() - time_frameLast < time_frameDuration) return;  // Not time yet
 
@@ -89,11 +89,11 @@ void XboxLEDBase::run() {
 	runFrame();  // Write current frame to LEDs
 }
 
-LED_Pattern XboxLEDBase::getPattern() const {
+LED_Pattern XboxLEDHandler::getPattern() const {
 	return currentPattern;  // Current pattern as enum
 }
 
-uint8_t XboxLEDBase::getPlayerNumber() const {
+uint8_t XboxLEDHandler::getPlayerNumber() const {
 	switch (currentPattern) {
 	case(LED_Pattern::Flash1):
 	case(LED_Pattern::Player1):
