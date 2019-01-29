@@ -54,8 +54,15 @@ namespace Xbox360Controller_LEDs {
 	};
 
 	struct LED_Frame {
+		static const unsigned long Timescale = 10;  // x ms = 1 tick
+
+		constexpr LED_Frame(const uint8_t LED_Pack, const unsigned long length) :
+			LEDs(LED_Pack),
+			Duration(length / Timescale)
+		{}
+
 		const uint8_t LEDs;
-		const uint32_t Duration;
+		const uint8_t Duration;
 	};
 
 	class AnimationBase {
@@ -245,7 +252,7 @@ namespace Xbox360Controller_LEDs {
 
 		void run() {
 			if (currentAnimation->getNumFrames() <= 1 || currentAnimation->getFrame(frameIndex).Duration == 0) return;  // No processing necessary
-			if (millis() - time_frameLast < currentAnimation->getFrame(frameIndex).Duration) return;  // Not time yet
+			if (millis() - time_frameLast < currentAnimation->getFrame(frameIndex).Duration * LED_Frame::Timescale) return;  // Not time yet
 
 			// Check if it's time to switch to the next pattern
 			if (linkPatterns && currentAnimation->Duration != 0 && millis() - time_animationLast >= currentAnimation->Duration) {
