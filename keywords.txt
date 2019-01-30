@@ -11,6 +11,7 @@ X360ControllerLEDs	KEYWORD1
 
 # Classes
 XboxControllerLEDs	KEYWORD1
+XboxControllerLEDs_Custom	KEYWORD1
 
 # Enums
 XboxLEDPattern	KEYWORD1
@@ -22,11 +23,13 @@ XboxLEDPattern	KEYWORD1
 # Setup
 begin	KEYWORD2
 
-# Pattern Data
+# Set Functions
 setPattern	KEYWORD2
 receivePattern	KEYWORD2
+
+# Get Functions
 getPattern	KEYWORD2
-getPlayerNumber	KEYWORD2
+getNumLEDs	KEYWORD2
 
 # Process
 run	KEYWORD2
@@ -54,3 +57,4 @@ Rotating	LITERAL1
 BlinkOnce	LITERAL1
 BlinkSlow	LITERAL1
 Alternating	LITERAL1
+NumPatterns	LITERAL1

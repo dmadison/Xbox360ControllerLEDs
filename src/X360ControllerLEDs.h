@@ -51,66 +51,60 @@ namespace Xbox360Controller_LEDs {
 		// Meta options
 		Previous,  // After this, go back to previous pattern
 		Null,      // Not a pattern
+		Max = Alternating,  // # of patterns, indexed at 0
+		NumPatterns = Max + 1  // # of patterns, indexed at 1
 	};
 
-	template<size_t nleds>
 	struct LED_Frame {
-		const boolean(&LEDs)[nleds];
-		const uint32_t Duration;
-		constexpr LED_Frame(bool const (&inLEDs)[nleds], uint32_t inDuration)
-			:LEDs{ inLEDs }, Duration(inDuration) {};
-		constexpr LED_Frame() = default;
-	};
+		static const unsigned long Timescale = 10;  // x ms = 1 tick
 
-	template <size_t nleds>
-	class AnimationBase {
-	public:
-		constexpr AnimationBase(unsigned long t, LED_Pattern nxt)
-			: Duration(t),
-			Next(nxt)
+		constexpr LED_Frame(const uint8_t LED_Pack, const unsigned long length) :
+			LEDs(LED_Pack),
+			Duration(length / Timescale)
 		{}
 
-		virtual LED_Frame<nleds> getFrame(size_t n) const = 0;
+		const uint8_t LEDs;
+		const uint8_t Duration;
+	};
+
+	class AnimationBase {
+	public:
+		constexpr AnimationBase(uint8_t n, LED_Pattern nxt)
+			: NCycles(n), Next(nxt)
+		{}
+
+		virtual LED_Frame getFrame(size_t n) const = 0;
 		virtual size_t getNumFrames() const = 0;
 
-		const unsigned long Duration;  // How long to run this pattern, ms
+		const uint8_t NCycles;   // How long to run this pattern, # of cycles
 		const LED_Pattern Next;  // Next pattern to run
 	};
 
-	template<size_t nleds, size_t nframes>
-	class LED_Animation : public AnimationBase<nleds> {
+	template<size_t nframes>
+	class LED_Animation : public AnimationBase {
 	public:
-		constexpr LED_Animation(LED_Frame<nleds> const (&Array)[nframes],
+		constexpr LED_Animation(LED_Frame const (&Array)[nframes],
 			unsigned long t = 0, LED_Pattern nxt = LED_Pattern::Null)
-			: AnimationBase<nleds>(t, nxt), Frames(Array)
+			: AnimationBase(t, nxt), Frames(Array)
 		{}
 
-		using AnimationBase<nleds>::getFrame;
-		using AnimationBase<nleds>::getNumFrames;
+		using AnimationBase::getFrame;
+		using AnimationBase::getNumFrames;
 
-		LED_Frame<nleds> getFrame(size_t n) const {
+		LED_Frame getFrame(size_t n) const {
 			return Frames[n];
 		}
 
 		size_t getNumFrames() const {
 			return nframes;
 		}
+
 	private:
-		const LED_Frame<nleds> Frames[nframes];
-	};
-
-	class XboxLEDBase {
-	public:
-		static const uint8_t NumPatterns = 14;
-
-		virtual void begin() = 0;
-		virtual void setPattern(LED_Pattern) = 0;
-		virtual void receivePattern(LED_Pattern) = 0;
-		virtual void run() = 0;
+		const LED_Frame Frames[nframes];
 	};
 
 	template <size_t nleds>
-	class XboxLEDAnimations : public XboxLEDBase {
+	class XboxLEDAnimations {
 	public:
 		constexpr XboxLEDAnimations() {
 			static_assert(nleds == 4 || nleds == 1,
@@ -120,205 +114,170 @@ namespace Xbox360Controller_LEDs {
 	};
 
 	template <>
-	class XboxLEDAnimations<1> : public XboxLEDBase {
+	class XboxLEDAnimations<1> {
+	public:
+		static const LED_Animation<1> Anim_Off;
+		static const LED_Animation<2> Anim_Blinking;
+
+		static const LED_Animation<2> Anim_Flash1;
+		static const LED_Animation<2> Anim_Flash2;
+		static const LED_Animation<2> Anim_Flash3;
+		static const LED_Animation<2> Anim_Flash4;
+
+		static const LED_Animation<1> Anim_Player1;
+		static const LED_Animation<4> Anim_Player2;
+		static const LED_Animation<6> Anim_Player3;
+		static const LED_Animation<8> Anim_Player4;
+
+		static const AnimationBase & getAnimation(LED_Pattern pattern);
+
 	protected:
 		static constexpr uint32_t BlinkTime = 450;
-		static constexpr uint32_t FlashTime = 80;
+		static constexpr uint32_t FlashTime = 100;
 
-		static constexpr uint32_t PlayerFlashTime = 1000;
-		static constexpr uint32_t PlayerTime = 200;
+
+		static constexpr uint32_t PlayerTime = 100;
 		static constexpr uint32_t PlayerLoopTime = 1500;
+		static constexpr uint8_t  PlayerFlashCount = 10;
 
-		static constexpr boolean On[1] = { 0 };
-		static constexpr boolean Off[1] = { 1 };
-
-		static const LED_Animation<1, 1> Anim_Off;
-		static const LED_Animation<1, 2> Anim_Blinking;
-
-		static const LED_Animation<1, 2> Anim_Flash1;
-		static const LED_Animation<1, 2> Anim_Flash2;
-		static const LED_Animation<1, 2> Anim_Flash3;
-		static const LED_Animation<1, 2> Anim_Flash4;
-
-		static const LED_Animation<1, 1> Anim_Player1;
-		static const LED_Animation<1, 4> Anim_Player2;
-		static const LED_Animation<1, 6> Anim_Player3;
-		static const LED_Animation<1, 8> Anim_Player4;
-
-		static const AnimationBase<1> & getAnimation(LED_Pattern pattern);
+		static constexpr uint8_t On  = 1;
+		static constexpr uint8_t Off = 0;
 	};
 
 	template <>
-	class XboxLEDAnimations<4> : public XboxLEDBase {
+	class XboxLEDAnimations<4> {
+	public:
+		static const LED_Animation<1> Anim_Off;
+		static const LED_Animation<2> Anim_Blinking;
+		static const LED_Animation<2> Anim_BlinkOnce;
+		static const LED_Animation<2> Anim_BlinkSlow;
+
+		static const LED_Animation<2> Anim_Flash1;
+		static const LED_Animation<2> Anim_Flash2;
+		static const LED_Animation<2> Anim_Flash3;
+		static const LED_Animation<2> Anim_Flash4;
+
+		static const LED_Animation<1> Anim_Player1;
+		static const LED_Animation<1> Anim_Player2;
+		static const LED_Animation<1> Anim_Player3;
+		static const LED_Animation<1> Anim_Player4;
+
+		static const LED_Animation<4> Anim_Rotating;
+		static const LED_Animation<2> Anim_Alternating;
+
+		static const AnimationBase & getAnimation(LED_Pattern pattern);
+
 	protected:
 		static constexpr uint32_t BlinkTime = 300;
 		static constexpr uint32_t BlinkSlow = 700;
 		static constexpr uint32_t RotateTime = 100;
 
-		static constexpr uint32_t PlayerBlinkCount = 3;
+		static constexpr uint8_t PlayerBlinkCount = 3;
 
-		static constexpr boolean States_Off[4] = { 0, 0, 0, 0 };
-		static constexpr boolean States_On[4] = { 1, 1, 1, 1 };
+		static constexpr uint8_t States_Off = 0b0000;
+		static constexpr uint8_t States_On  = 0b1111;
 
-		static constexpr boolean States_Player1[4] = { 1, 0, 0, 0 };
-		static constexpr boolean States_Player2[4] = { 0, 1, 0, 0 };
-		static constexpr boolean States_Player3[4] = { 0, 0, 1, 0 };
-		static constexpr boolean States_Player4[4] = { 0, 0, 0, 1 };
+		static constexpr uint8_t States_Player1 = (1 << 0);
+		static constexpr uint8_t States_Player2 = (1 << 1);
+		static constexpr uint8_t States_Player3 = (1 << 2);
+		static constexpr uint8_t States_Player4 = (1 << 3);
 
-		static constexpr boolean States_Op1[4] = { 1, 0, 1, 0 };
-		static constexpr boolean States_Op2[4] = { 0, 1, 0, 1 };
+		static constexpr uint8_t States_Op1 = 0b1010;
+		static constexpr uint8_t States_Op2 = 0b0101;
+	};
 
-		static const LED_Animation<4, 1> Anim_Off;
-		static const LED_Animation<4, 2> Anim_Blinking;
-		static const LED_Animation<4, 2> Anim_BlinkOnce;
-		static const LED_Animation<4, 2> Anim_BlinkSlow;
+	class XboxLEDHandler {
+	public:
+		static const uint8_t NumPatterns = (uint8_t) LED_Pattern::NumPatterns;
+		using Animation = AnimationBase;
 
-		static const LED_Animation<4, 2> Anim_Flash1;
-		static const LED_Animation<4, 2> Anim_Flash2;
-		static const LED_Animation<4, 2> Anim_Flash3;
-		static const LED_Animation<4, 2> Anim_Flash4;
+		XboxLEDHandler();
 
-		static const LED_Animation<4, 1> Anim_Player1;
-		static const LED_Animation<4, 1> Anim_Player2;
-		static const LED_Animation<4, 1> Anim_Player3;
-		static const LED_Animation<4, 1> Anim_Player4;
+		virtual void begin() = 0;
 
-		static const LED_Animation<4, 4> Anim_Rotating;
-		static const LED_Animation<4, 2> Anim_Alternating;
+		void setPattern(LED_Pattern pattern);
+		void receivePattern(LED_Pattern pattern);
 
-		static const AnimationBase<4> & getAnimation(LED_Pattern pattern);
+		LED_Pattern getPattern() const;
+
+		void run();
+
+	protected:
+		virtual const Animation & getAnimation(LED_Pattern pattern) const = 0;
+		virtual void setLEDs(uint8_t ledStates) = 0;
+
+	private:
+		void setPattern(LED_Pattern pattern, boolean runNow);
+		void runFrame();
+
+		// LED Information
+		boolean linkPatterns = false;
+
+		// Pattern Information (Enum)
+		LED_Pattern currentPattern;
+		LED_Pattern previousPattern;
+
+		// Animation Information
+		const Animation * currentAnimation;
+		uint8_t frameIndex = 0;
+		uint8_t cycleCount = 0;
+
+		// Timestamps (ms)
+		unsigned long time_frameLast = 0;
+		unsigned long time_frameDuration = 0;
 	};
 
 	template <uint8_t ...pins>
-	class XboxLEDHandler : public XboxLEDAnimations<sizeof... (pins)> {
+	class XboxLED_IndividualPins : public XboxLEDHandler {
 	public:
 		static const size_t NumLEDs = sizeof... (pins);  // # of pins = # of LEDs
-		using Animation = AnimationBase<NumLEDs>;
 
-		XboxLEDHandler(const bool inv = false) :
+		XboxLED_IndividualPins(const bool inv = false) :
+			XboxLEDHandler(),
 			Pins{ pins... },
-			Inverted(inv),
-			currentPattern(LED_Pattern::Off),
-			previousPattern(currentPattern),
-			currentAnimation(&XboxLEDAnimations<NumLEDs>::getAnimation(currentPattern))
+			Inverted(inv)
 		{}
 
 		void begin() {  // Initialize LED outputs
 			for (uint8_t i = 0; i < NumLEDs; i++) {
 				pinMode(Pins[i], OUTPUT);
-				digitalWrite(Pins[i], Inverted);  // Set 'Off'
 			}
-			runFrame();  // Set LEDs
+			setPattern(LED_Pattern::Off);
 		}
 
-		void setPattern(LED_Pattern pattern) {
-			if ((uint8_t)pattern >= XboxLEDBase::NumPatterns) return;  // Meta pattern, ignore
-			linkPatterns = false;  // Don't auto-link to the next pattern
-			setPattern(pattern, true);  // Screw it, do the pattern NOW
+		constexpr uint8_t getNumLEDs() const {
+			return NumLEDs;
 		}
 
-		void receivePattern(LED_Pattern pattern) {
-			if ((uint8_t)pattern >= XboxLEDBase::NumPatterns) return;  // Meta pattern, ignore
-			linkPatterns = true;  // Auto-link to the next pattern if available
-			setPattern(pattern, false);  // Set pattern, but don't run immediately if it is next pattern in queue
+	protected:
+		const Animation & getAnimation(LED_Pattern pattern) const {
+			return XboxLEDAnimations<NumLEDs>::getAnimation(pattern);
 		}
 
-		LED_Pattern getPattern() const {
-			return currentPattern;  // Current pattern as enum
-		}
-
-		uint8_t getPlayerNumber() const {
-			switch (currentPattern) {
-			case(LED_Pattern::Flash1):
-			case(LED_Pattern::Player1):
-				return 1;
-			case(LED_Pattern::Flash2):
-			case(LED_Pattern::Player2):
-				return 2;
-			case(LED_Pattern::Flash3):
-			case(LED_Pattern::Player3):
-				return 3;
-			case(LED_Pattern::Flash4):
-			case(LED_Pattern::Player4):
-				return 4;
-			default: return 0;
-			}
-		}
-
-		void run() {
-			if (currentAnimation->getNumFrames() <= 1 || currentAnimation->getFrame(frameIndex).Duration == 0) return;  // No processing necessary
-			if (millis() - time_frameLast < currentAnimation->getFrame(frameIndex).Duration) return;  // Not time yet
-
-			// Check if it's time to switch to the next pattern
-			if (linkPatterns && currentAnimation->Duration != 0 && millis() - time_animationLast >= currentAnimation->Duration) {
-				setPattern(currentAnimation->Next, true);  // Run next pattern + override "Next" check
-				return;
-			}
-
-			time_frameLast = millis();  // Save time
-			frameIndex++;  // Go to next frame
-			if (frameIndex >= currentAnimation->getNumFrames()) frameIndex = 0;  // If at last frame, go to start
-			runFrame();  // Write current frame to LEDs
-		}
-
-	private:
-		void setPattern(LED_Pattern pattern, boolean runNow) {
-			if (currentPattern == pattern) return;  // No change
-			if (runNow == false && pattern == currentAnimation->Next) return;  // That's the next pattern! We'll get there...
-
-			// If pattern says go back, load prevous pattern
-			if (pattern == LED_Pattern::Previous) {
-				pattern = previousPattern;
-			}
-
-			// If not currently running a temporary pattern, save as previous
-			if (currentAnimation->Next != LED_Pattern::Previous) {
-				previousPattern = currentPattern;  // Save current pattern as previous
-			}
-
-			currentPattern = pattern;  // Save pattern (enum)
-
-			const Animation * newAnimation = &XboxLEDAnimations<NumLEDs>::getAnimation(currentPattern);
-			if (currentAnimation == newAnimation) return;  // Different pattern, same animation
-			currentAnimation = newAnimation;  // Save animation (pointer)
-
-			frameIndex = 0;
-			time_animationLast = time_frameLast = millis();  // Now
-			runFrame();  // Run once
-		}
-
-		void runFrame() {
-			parseFrame(currentAnimation, frameIndex);
-			setLEDs();
-		}
-
-		void parseFrame(const Animation * animation, uint32_t index) {
-			if (index >= animation->getNumFrames()) return;  // Out of range
-
+		void setLEDs(uint8_t ledStates) {
 			for (uint8_t i = 0; i < NumLEDs; i++) {
-				state[i] = animation->getFrame(index).LEDs[i];
-			}
-		}
-
-		void setLEDs() {
-			for (uint8_t i = 0; i < NumLEDs; i++) {
-				digitalWrite(Pins[i], Inverted ? !state[i] : state[i]);
+				digitalWrite(Pins[i], !(ledStates & (1 << i)) != !Inverted);
 			}
 		}
 
 		// LED Information
 		const uint8_t Pins[NumLEDs];
-		const boolean Inverted = false;
-		boolean state[NumLEDs];
-		boolean linkPatterns = false;
+		const boolean Inverted = false;  // Flag for inverted output
+	};
 
-		// Current Pattern Information
-		LED_Pattern currentPattern;
-		LED_Pattern previousPattern;
-		const Animation * currentAnimation;
-		uint8_t frameIndex = 0;
-		unsigned long time_frameLast = 0;
-		unsigned long time_animationLast = 0;
+	template <uint8_t nleds>
+	class XboxLED_CustomOutput : public XboxLEDHandler {
+	public:
+		constexpr uint8_t getNumLEDs() const {
+			return nleds;
+		}
+
+	protected:
+		const Animation & getAnimation(LED_Pattern pattern) const {
+			static_assert(nleds == 1 || nleds == 4,
+				"Error: Must use animations for either 1 or 4 LEDs");
+			return XboxLEDAnimations<nleds>::getAnimation(pattern);
+		}
 	};
 
 }  // End namespace
@@ -327,6 +286,9 @@ namespace Xbox360Controller_LEDs {
 using XboxLEDPattern = Xbox360Controller_LEDs::LED_Pattern;
 
 template<uint8_t ...pins>
-using XboxControllerLEDs = Xbox360Controller_LEDs::XboxLEDHandler<pins...>;
+using XboxControllerLEDs = Xbox360Controller_LEDs::XboxLED_IndividualPins<pins...>;
+
+template<uint8_t nleds>
+using XboxControllerLEDs_Custom = Xbox360Controller_LEDs::XboxLED_CustomOutput<nleds>;
 
 #endif
