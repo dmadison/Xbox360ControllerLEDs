@@ -18,5 +18,11 @@ This is an animation library first and foremost, and as such it's up to the user
 
 The included ["UserOutput" example](examples/UserOutput/UserOutput.ino) demonstrates how this works by using [the FastLED library](https://github.com/FastLED/FastLED) to run the controller animations on a strip of addressable WS2812B LEDs ("NeoPixels"). Custom output modes can use either single-LED or quad-LED animations.
 
+## Credits and Contributions
+
+If you would like to submit any improvements to this library, pull requests are open and welcome!
+
+Huge thank you to [Stephen Whittle](https://github.com/stephenwhittle) who helped me work out the kinks with the variadic template pin initialization and variable frame sizes. Thanks Stephen!
+
 ## License
 Released under the terms of the [MIT license](https://opensource.org/licenses/MIT). See the [LICENSE](LICENSE) file for more information.
