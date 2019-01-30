@@ -4,6 +4,8 @@ This is an Arduino library that attempts to mimic the LED patterns of the Xbox 3
 
 The animation timing uses the built-in Arduino `millis` function as a timer and does not require a dedicated ISR. The library's main `run` function can be called either in `loop()` or as part of another interrupt. Updates should be performed at least every 100 ms while a non-static animation is running.
 
+See [this post](https://www.partsnotincluded.com/reverse-engineering/xbox-360-controller-led-animations/) on Parts Not Included for a list of the available animations.
+
 ## Getting Started
 
 Download the library [here](../../archive/master.zip) and follow [the instructions on the Arduino website](https://www.arduino.cc/en/guide/libraries#toc4) for installing a library from a .zip file. You can also install the library via the [libraries manager](https://www.arduino.cc/en/guide/libraries#toc3) of the Arduino IDE.
