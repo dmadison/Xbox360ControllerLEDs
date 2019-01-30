@@ -31,6 +31,13 @@
 
 namespace Xbox360Controller_LEDs {
 
+	/* 
+	 * LED patterns are enumerated based on the pattern index sent 
+	 * by the host driver over USB.
+	 *
+	 * See https://www.partsnotincluded.com/reverse-engineering/xbox-360-controller-led-animations/
+	 */
+
 	enum class LED_Pattern : uint8_t {
 		// Driver defined options
 		Off = 0x00,
@@ -55,16 +62,20 @@ namespace Xbox360Controller_LEDs {
 		NumPatterns = Max + 1  // # of patterns, indexed at 1
 	};
 
+	// --------------------------------------------------------
+	// Animation Base Classes                                 |
+	// --------------------------------------------------------
+
 	struct LED_Frame {
 		static const unsigned long Timescale = 10;  // x ms = 1 tick
 
 		constexpr LED_Frame(const uint8_t LED_Pack, const unsigned long length) :
 			LEDs(LED_Pack),
-			Duration(length / Timescale)
+			Duration(length / Timescale)  // Converts ms to # of ticks
 		{}
 
-		const uint8_t LEDs;
-		const uint8_t Duration;
+		const uint8_t LEDs;  // Packed byte, 8 LED states max
+		const uint8_t Duration;  // In ticks (see timescale above)
 	};
 
 	class AnimationBase {
@@ -102,6 +113,11 @@ namespace Xbox360Controller_LEDs {
 	private:
 		const LED_Frame Frames[nframes];
 	};
+
+	// --------------------------------------------------------
+	// Animation Lists                                        |
+	//     All of the animations for a given # of LEDs        |
+	// --------------------------------------------------------
 
 	template <size_t nleds>
 	class XboxLEDAnimations {
@@ -186,6 +202,11 @@ namespace Xbox360Controller_LEDs {
 		static constexpr uint8_t States_Op2 = 0b0101;
 	};
 
+	// --------------------------------------------------------
+	// LED Animation Handler                                  |
+	//     Handles frame parsing and animation timing         |
+	// --------------------------------------------------------
+
 	class XboxLEDHandler {
 	public:
 		static const uint8_t NumPatterns = (uint8_t) LED_Pattern::NumPatterns;
@@ -227,6 +248,12 @@ namespace Xbox360Controller_LEDs {
 		unsigned long time_frameDuration = 0;
 	};
 
+	// --------------------------------------------------------
+	// LED Animation Output                                   |
+	//     For a given animation handler, links the animation |
+	//     output states to hardware                          |
+	// --------------------------------------------------------
+
 	template <uint8_t ...pins>
 	class XboxLED_IndividualPins : public XboxLEDHandler {
 	public:
@@ -256,6 +283,7 @@ namespace Xbox360Controller_LEDs {
 
 		void setLEDs(uint8_t ledStates) {
 			for (uint8_t i = 0; i < NumLEDs; i++) {
+				// Invert both variables and use != to get logical XOR
 				digitalWrite(Pins[i], !(ledStates & (1 << i)) != !Inverted);
 			}
 		}
