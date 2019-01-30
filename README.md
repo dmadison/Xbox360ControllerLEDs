@@ -1,4 +1,5 @@
 # Xbox 360 Controller LEDs Library
+[![arduino-library-badge](https://www.ardu-badge.com/badge/Xbox%20360%20Controller%20LED%20Library.svg?)](https://www.ardu-badge.com/Xbox%20360%20Controller%20LED%20Library) [![Build Status](https://travis-ci.org/dmadison/Xbox360ControllerLEDs.svg?branch=master)](https://travis-ci.org/dmadison/Xbox360ControllerLEDs)
 
 This is an Arduino library that attempts to mimic the LED patterns of the Xbox 360 controller. Both single-LED and quad-LED pattern sets are supported, and can be triggered directly by the user or from relevant USB data.
 
