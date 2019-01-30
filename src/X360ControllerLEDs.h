@@ -268,6 +268,21 @@ namespace Xbox360Controller_LEDs {
 		const boolean Inverted = false;  // Flag for inverted output
 	};
 
+	template <uint8_t nleds>
+	class XboxLED_CustomOutput : public XboxLEDHandler {
+	public:
+		constexpr uint8_t getNumLEDs() const {
+			return nleds;
+		}
+
+	protected:
+		const Animation & getAnimation(LED_Pattern pattern) const {
+			static_assert(nleds == 1 || nleds == 4,
+				"Error: Must use animations for either 1 or 4 LEDs");
+			return XboxLEDAnimations<nleds>::getAnimation(pattern);
+		}
+	};
+
 }  // End namespace
 
 // Library API
@@ -275,5 +290,8 @@ using XboxLEDPattern = Xbox360Controller_LEDs::LED_Pattern;
 
 template<uint8_t ...pins>
 using XboxControllerLEDs = Xbox360Controller_LEDs::XboxLED_IndividualPins<pins...>;
+
+template<uint8_t nleds>
+using XboxControllerLEDs_Custom = Xbox360Controller_LEDs::XboxLED_CustomOutput<nleds>;
 
 #endif

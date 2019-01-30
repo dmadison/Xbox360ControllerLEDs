@@ -11,6 +11,7 @@ X360ControllerLEDs	KEYWORD1
 
 # Classes
 XboxControllerLEDs	KEYWORD1
+XboxControllerLEDs_Custom	KEYWORD1
 
 # Enums
 XboxLEDPattern	KEYWORD1
