@@ -69,17 +69,14 @@ namespace Xbox360Controller_LEDs {
 
 	class AnimationBase {
 	public:
-		static const unsigned long Timescale = 100;  // x ms = 1 tick
-		
-		constexpr AnimationBase(unsigned long t, LED_Pattern nxt)
-			: Duration(t / Timescale),
-			Next(nxt)
+		constexpr AnimationBase(uint8_t n, LED_Pattern nxt)
+			: NCycles(n), Next(nxt)
 		{}
 
 		virtual LED_Frame getFrame(size_t n) const = 0;
 		virtual size_t getNumFrames() const = 0;
 
-		const uint8_t Duration;  // How long to run this pattern, # of ticks
+		const uint8_t NCycles;   // How long to run this pattern, # of cycles
 		const LED_Pattern Next;  // Next pattern to run
 	};
 
@@ -136,11 +133,12 @@ namespace Xbox360Controller_LEDs {
 
 	protected:
 		static constexpr uint32_t BlinkTime = 450;
-		static constexpr uint32_t FlashTime = 80;
+		static constexpr uint32_t FlashTime = 100;
 
-		static constexpr uint32_t PlayerFlashTime = 1000;
-		static constexpr uint32_t PlayerTime = 200;
+
+		static constexpr uint32_t PlayerTime = 100;
 		static constexpr uint32_t PlayerLoopTime = 1500;
+		static constexpr uint8_t  PlayerFlashCount = 10;
 
 		static constexpr uint8_t On  = 1;
 		static constexpr uint8_t Off = 0;
@@ -222,12 +220,11 @@ namespace Xbox360Controller_LEDs {
 		// Animation Information
 		const Animation * currentAnimation;
 		uint8_t frameIndex = 0;
+		uint8_t cycleCount = 0;
 
 		// Timestamps (ms)
 		unsigned long time_frameLast = 0;
 		unsigned long time_frameDuration = 0;
-		unsigned long time_animationLast = 0;
-		unsigned long time_animationDuration = 0;
 	};
 
 	template <uint8_t ...pins>

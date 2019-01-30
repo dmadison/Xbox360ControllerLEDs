@@ -31,7 +31,7 @@ namespace Xbox360Controller_LEDs {
 // Dummy animation to populate the currentAnimation pointer
 static const LED_Animation<1> Animation_Null(
 	{ LED_Frame(0, 0) },  // No LEDs lit, infinite frame duration
-	0,                    // Infinite animation duration
+	0,                    // Infinite animation repeat
 	LED_Pattern::Null     // Next animation is no animation
 );
 
@@ -75,9 +75,8 @@ void XboxLEDHandler::setPattern(LED_Pattern pattern, boolean runNow) {
 	if (currentAnimation == newAnimation) return;  // Different pattern, same animation
 	currentAnimation = newAnimation;  // Save animation (pointer)
 
-	frameIndex = 0;
-	time_animationDuration = currentAnimation->Duration * AnimationBase::Timescale;  // Save animation time in ms
-	time_animationLast = millis();  // Now
+	frameIndex = 0;  // Zero frame index (start of animation frames)
+	cycleCount = 0;  // Zero cycle count (start of animation cycle)
 	runFrame();  // Run once
 }
 
@@ -92,14 +91,16 @@ void XboxLEDHandler::run() {
 	if (currentAnimation->getNumFrames() <= 1 || time_frameDuration == 0) return;  // No processing necessary
 	if (millis() - time_frameLast < time_frameDuration) return;  // Not time yet
 
-	// Check if it's time to switch to the next pattern
-	if (linkPatterns && time_animationDuration != 0 && millis() - time_animationLast >= time_animationDuration) {
-		setPattern(currentAnimation->Next, true);  // Run next pattern + override "Next" check
-		return;
-	}
-
 	frameIndex++;  // Go to next frame
-	if (frameIndex >= currentAnimation->getNumFrames()) frameIndex = 0;  // If at last frame, go to start
+	if (frameIndex >= currentAnimation->getNumFrames()) {  // End of animation cycle
+		cycleCount++;  // Increase animation cycle counter (linking can be enabled at any point)
+		// If linking enabled AND animation has an ending AN we're *at* that ending...
+		if (linkPatterns && currentAnimation->NCycles != 0 && cycleCount >= currentAnimation->NCycles) {
+				setPattern(currentAnimation->Next, true);    // Run next pattern + override "Next" check
+			return;
+		}
+		frameIndex = 0;  // If at last frame, go to start
+	}
 	runFrame();  // Write current frame to LEDs
 }
 
@@ -125,28 +126,28 @@ const LED_Animation<2> XboxLEDAnimations<1>::Anim_Blinking({
 const LED_Animation<2> XboxLEDAnimations<1>::Anim_Flash1({
 	LED_Frame(XboxLEDAnimations<1>::Off, XboxLEDAnimations<1>::FlashTime),
 	LED_Frame(XboxLEDAnimations<1>::On,  XboxLEDAnimations<1>::FlashTime)},
-	PlayerFlashTime,
+	PlayerFlashCount,
 	LED_Pattern::Player1  // After flashing, go to Player 1
 );
 
 const LED_Animation<2> XboxLEDAnimations<1>::Anim_Flash2({
 	LED_Frame(XboxLEDAnimations<1>::Off, XboxLEDAnimations<1>::FlashTime),
 	LED_Frame(XboxLEDAnimations<1>::On,  XboxLEDAnimations<1>::FlashTime)},
-	PlayerFlashTime,
+	PlayerFlashCount,
 	LED_Pattern::Player2  // After flashing, go to Player 2
 );
 
 const LED_Animation<2> XboxLEDAnimations<1>::Anim_Flash3({
 	LED_Frame(XboxLEDAnimations<1>::Off, XboxLEDAnimations<1>::FlashTime),
 	LED_Frame(XboxLEDAnimations<1>::On,  XboxLEDAnimations<1>::FlashTime)},
-	PlayerFlashTime,
+	PlayerFlashCount,
 	LED_Pattern::Player3  // After flashing, go to Player 3
 );
 
 const LED_Animation<2> XboxLEDAnimations<1>::Anim_Flash4({
 	LED_Frame(XboxLEDAnimations<1>::Off, XboxLEDAnimations<1>::FlashTime),
 	LED_Frame(XboxLEDAnimations<1>::On,  XboxLEDAnimations<1>::FlashTime)},
-	PlayerFlashTime,
+	PlayerFlashCount,
 	LED_Pattern::Player4  // After flashing, go to Player 4
 );
 
@@ -236,49 +237,49 @@ const LED_Animation<1> XboxLEDAnimations<4>::Anim_Off ({
 const LED_Animation<2> XboxLEDAnimations<4>::Anim_Blinking({
 	LED_Frame(XboxLEDAnimations<4>::States_Off, XboxLEDAnimations<4>::BlinkTime),
 	LED_Frame(XboxLEDAnimations<4>::States_On,  XboxLEDAnimations<4>::BlinkTime)},
-	(BlinkTime * 2) * 4,   // Blink 4 times
+	4,   // Blink 4 times
 	LED_Pattern::BlinkSlow  // After blinking fast, blink slow
 );
 
 const LED_Animation<2> XboxLEDAnimations<4>::Anim_BlinkOnce({
 	LED_Frame(XboxLEDAnimations<4>::States_Off, XboxLEDAnimations<4>::BlinkSlow),
 	LED_Frame(XboxLEDAnimations<4>::States_On,  XboxLEDAnimations<4>::BlinkTime)},
-	(BlinkSlow + BlinkTime), // Blink once
+	1, // Blink once
 	LED_Pattern::Previous  // After blinking, go back to previous
 );
 
 const LED_Animation<2> XboxLEDAnimations<4>::Anim_BlinkSlow({
 	LED_Frame(XboxLEDAnimations<4>::States_Off, XboxLEDAnimations<4>::BlinkSlow),
 	LED_Frame(XboxLEDAnimations<4>::States_On,  XboxLEDAnimations<4>::BlinkTime)},
-	(BlinkTime + BlinkSlow) * 16,   // Blink 16 times
+	16,   // Blink 16 times
 	LED_Pattern::Previous  // After blinking slow, go back to previous
 );
 
 const LED_Animation<2> XboxLEDAnimations<4>::Anim_Flash1({
 	LED_Frame(XboxLEDAnimations<4>::States_Off,     XboxLEDAnimations<4>::BlinkTime),
 	LED_Frame(XboxLEDAnimations<4>::States_Player1, XboxLEDAnimations<4>::BlinkTime)},
-	(BlinkTime * 2) * PlayerBlinkCount,  // Flash n times
+	PlayerBlinkCount,  // Flash n times
 	LED_Pattern::Player1  // After flashing, go to Player 1
 );
 
 const LED_Animation<2> XboxLEDAnimations<4>::Anim_Flash2({
 	LED_Frame(XboxLEDAnimations<4>::States_Off,     XboxLEDAnimations<4>::BlinkTime),
 	LED_Frame(XboxLEDAnimations<4>::States_Player2, XboxLEDAnimations<4>::BlinkTime)},
-	(BlinkTime * 2) * PlayerBlinkCount,  // Flash n times
+	PlayerBlinkCount,  // Flash n times
 	LED_Pattern::Player2  // After flashing, go to Player 2
 );
 
 const LED_Animation<2> XboxLEDAnimations<4>::Anim_Flash3 ({
 	LED_Frame(XboxLEDAnimations<4>::States_Off,     XboxLEDAnimations<4>::BlinkTime),
 	LED_Frame(XboxLEDAnimations<4>::States_Player3, XboxLEDAnimations<4>::BlinkTime)},
-	(BlinkTime * 2) * PlayerBlinkCount,  // Flash n times
+	PlayerBlinkCount,  // Flash n times
 	LED_Pattern::Player3  // After flashing, go to Player 3
 );
 
 const LED_Animation<2> XboxLEDAnimations<4>::Anim_Flash4({
 	LED_Frame(XboxLEDAnimations<4>::States_Off,     XboxLEDAnimations<4>::BlinkTime),
 	LED_Frame(XboxLEDAnimations<4>::States_Player4, XboxLEDAnimations<4>::BlinkTime)},
-	(BlinkTime * 2) * PlayerBlinkCount,  // Flash n times
+	PlayerBlinkCount,  // Flash n times
 	LED_Pattern::Player4  // After flashing, go to Player 4
 );
 
@@ -303,14 +304,14 @@ const LED_Animation<4> XboxLEDAnimations<4>::Anim_Rotating ({
 	LED_Frame(XboxLEDAnimations<4>::States_Player2, XboxLEDAnimations<4>::RotateTime),
 	LED_Frame(XboxLEDAnimations<4>::States_Player3, XboxLEDAnimations<4>::RotateTime),
 	LED_Frame(XboxLEDAnimations<4>::States_Player4, XboxLEDAnimations<4>::RotateTime)},
-	(RotateTime * 4) * 50,  // Rotate 50 times
+	50,  // Rotate 50 times
 	LED_Pattern::Previous  // After rotating, go back to previous
 );
 
 const LED_Animation<2> XboxLEDAnimations<4>::Anim_Alternating ({
 	LED_Frame(XboxLEDAnimations<4>::States_Op1, XboxLEDAnimations<4>::BlinkTime),
 	LED_Frame(XboxLEDAnimations<4>::States_Op2, XboxLEDAnimations<4>::BlinkTime)},
-	(BlinkTime * 2) * 7,  // Alternate 7 times
+	7,  // Alternate 7 times
 	LED_Pattern::Previous  // After alternating, go back to previous
 );
 
