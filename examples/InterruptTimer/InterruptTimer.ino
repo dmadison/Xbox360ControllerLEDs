@@ -24,10 +24,18 @@
  *
  *  Example:      InterruptTimer
  *  Description:  Blink using the library's LED animations without having to
- *                repeatedly call 'run' in loop(). Requires use of TIMER2.
+ *                repeatedly call 'run' in loop().
+ *                
+ *                Only tested with Uno / Nano. Other boards will have different
+ *                registers for their interrupt timers; read their datasheets
+ *                to learn more. Requires use of TIMER2.
  */
 
 #include <X360ControllerLEDs.h>
+
+#if !defined(__AVR_ATmega328P__) && !defined(__AVR_ATmega168__)
+#error Interrupt registers not defined! Please try setting board to either Uno or Nano.
+#endif
 
 const uint8_t LED_Pin = LED_BUILTIN;  // Use the built-in LED
 

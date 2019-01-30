@@ -62,7 +62,7 @@ protected:
 	 *  for every LED in the current frame.
 	 */ 
 	void setLEDs(uint8_t ledStates) {
-		for (uint8_t i; i < NumLEDs; i++) {
+		for (uint8_t i = 0; i < NumLEDs; i++) {
 			boolean thisLED = ledStates & (1 << i);  // Get extracted LED state
 
 			if (thisLED == HIGH) {
