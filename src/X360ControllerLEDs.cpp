@@ -28,6 +28,30 @@
 
 namespace Xbox360Controller_LEDs {
 
+static const boolean isPlayerFlash(LED_Pattern pattern) {
+	switch (pattern) {
+	case(LED_Pattern::Flash1):
+	case(LED_Pattern::Flash2):
+	case(LED_Pattern::Flash3):
+	case(LED_Pattern::Flash4):
+		return true;
+	default:
+		return false;
+	}
+}
+
+static const boolean isPlayerSolid(LED_Pattern pattern) {
+	switch (pattern) {
+	case(LED_Pattern::Player1):
+	case(LED_Pattern::Player2):
+	case(LED_Pattern::Player3):
+	case(LED_Pattern::Player4):
+		return true;
+	default:
+		return false;
+	}
+}
+
 // Dummy animation to populate the currentAnimation pointer
 static const LED_Animation<1> Animation_Null(
 	{ LED_Frame(0, 0) },  // No LEDs lit, infinite frame duration
@@ -58,6 +82,7 @@ void XboxLEDHandler::linkPattern(LED_Pattern pattern) {
 void XboxLEDHandler::setPattern(LED_Pattern pattern, boolean runNow) {
 	if (currentPattern == pattern) return;  // No change
 	if (runNow == false && pattern == currentAnimation->Next) return;  // That's the next pattern! We'll get there...
+	if (linkPatterns && isPlayerFlash(pattern) && isPlayerSolid(currentPattern)) return;  // Don't go back to flashing if player is solid
 
 	// If pattern says go back, load prevous pattern
 	if (pattern == LED_Pattern::Previous) {
