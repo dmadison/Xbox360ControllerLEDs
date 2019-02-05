@@ -25,7 +25,7 @@ begin	KEYWORD2
 
 # Set Functions
 setPattern	KEYWORD2
-receivePattern	KEYWORD2
+linkPattern	KEYWORD2
 
 # Get Functions
 getPattern	KEYWORD2

@@ -49,7 +49,7 @@ void XboxLEDHandler::setPattern(LED_Pattern pattern) {
 	setPattern(pattern, true);  // Screw it, do the pattern NOW
 }
 
-void XboxLEDHandler::receivePattern(LED_Pattern pattern) {
+void XboxLEDHandler::linkPattern(LED_Pattern pattern) {
 	if ((uint8_t)pattern >= XboxLEDHandler::NumPatterns) return;  // Meta pattern, ignore
 	linkPatterns = true;  // Auto-link to the next pattern if available
 	setPattern(pattern, false);  // Set pattern, but don't run immediately if it is next pattern in queue

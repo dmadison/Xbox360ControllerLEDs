@@ -47,7 +47,7 @@ void loop() {
 	// Check if new pattern received
 	if (pattern != lastPattern) {
 		lastPattern = pattern;  // Save pattern for reference
-		leds.receivePattern(lastPattern);  // Set pattern and use linked pattern features
+		leds.linkPattern(lastPattern);  // Set pattern and use linked pattern features
 	}
 	
 	leds.run();

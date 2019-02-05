@@ -217,7 +217,7 @@ namespace Xbox360Controller_LEDs {
 		virtual void begin() = 0;
 
 		void setPattern(LED_Pattern pattern);
-		void receivePattern(LED_Pattern pattern);
+		void linkPattern(LED_Pattern pattern);
 
 		LED_Pattern getPattern() const;
 
