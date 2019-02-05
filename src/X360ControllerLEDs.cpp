@@ -302,8 +302,8 @@ const LED_Animation<1> XboxLEDAnimations<4>::Anim_Player4 ({
 const LED_Animation<4> XboxLEDAnimations<4>::Anim_Rotating ({
 	LED_Frame(XboxLEDAnimations<4>::States_Player1, XboxLEDAnimations<4>::RotateTime),
 	LED_Frame(XboxLEDAnimations<4>::States_Player2, XboxLEDAnimations<4>::RotateTime),
-	LED_Frame(XboxLEDAnimations<4>::States_Player3, XboxLEDAnimations<4>::RotateTime),
-	LED_Frame(XboxLEDAnimations<4>::States_Player4, XboxLEDAnimations<4>::RotateTime)},
+	LED_Frame(XboxLEDAnimations<4>::States_Player4, XboxLEDAnimations<4>::RotateTime),
+	LED_Frame(XboxLEDAnimations<4>::States_Player3, XboxLEDAnimations<4>::RotateTime)},
 	50,  // Rotate 50 times
 	LED_Pattern::Previous  // After rotating, go back to previous
 );
