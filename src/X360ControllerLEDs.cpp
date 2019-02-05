@@ -28,6 +28,30 @@
 
 namespace Xbox360Controller_LEDs {
 
+static const boolean isPlayerFlash(LED_Pattern pattern) {
+	switch (pattern) {
+	case(LED_Pattern::Flash1):
+	case(LED_Pattern::Flash2):
+	case(LED_Pattern::Flash3):
+	case(LED_Pattern::Flash4):
+		return true;
+	default:
+		return false;
+	}
+}
+
+static const boolean isPlayerSolid(LED_Pattern pattern) {
+	switch (pattern) {
+	case(LED_Pattern::Player1):
+	case(LED_Pattern::Player2):
+	case(LED_Pattern::Player3):
+	case(LED_Pattern::Player4):
+		return true;
+	default:
+		return false;
+	}
+}
+
 // Dummy animation to populate the currentAnimation pointer
 static const LED_Animation<1> Animation_Null(
 	{ LED_Frame(0, 0) },  // No LEDs lit, infinite frame duration
@@ -49,7 +73,7 @@ void XboxLEDHandler::setPattern(LED_Pattern pattern) {
 	setPattern(pattern, true);  // Screw it, do the pattern NOW
 }
 
-void XboxLEDHandler::receivePattern(LED_Pattern pattern) {
+void XboxLEDHandler::linkPattern(LED_Pattern pattern) {
 	if ((uint8_t)pattern >= XboxLEDHandler::NumPatterns) return;  // Meta pattern, ignore
 	linkPatterns = true;  // Auto-link to the next pattern if available
 	setPattern(pattern, false);  // Set pattern, but don't run immediately if it is next pattern in queue
@@ -58,6 +82,7 @@ void XboxLEDHandler::receivePattern(LED_Pattern pattern) {
 void XboxLEDHandler::setPattern(LED_Pattern pattern, boolean runNow) {
 	if (currentPattern == pattern) return;  // No change
 	if (runNow == false && pattern == currentAnimation->Next) return;  // That's the next pattern! We'll get there...
+	if (linkPatterns && isPlayerFlash(pattern) && isPlayerSolid(currentPattern)) return;  // Don't go back to flashing if player is solid
 
 	// If pattern says go back, load prevous pattern
 	if (pattern == LED_Pattern::Previous) {
@@ -302,8 +327,8 @@ const LED_Animation<1> XboxLEDAnimations<4>::Anim_Player4 ({
 const LED_Animation<4> XboxLEDAnimations<4>::Anim_Rotating ({
 	LED_Frame(XboxLEDAnimations<4>::States_Player1, XboxLEDAnimations<4>::RotateTime),
 	LED_Frame(XboxLEDAnimations<4>::States_Player2, XboxLEDAnimations<4>::RotateTime),
-	LED_Frame(XboxLEDAnimations<4>::States_Player3, XboxLEDAnimations<4>::RotateTime),
-	LED_Frame(XboxLEDAnimations<4>::States_Player4, XboxLEDAnimations<4>::RotateTime)},
+	LED_Frame(XboxLEDAnimations<4>::States_Player4, XboxLEDAnimations<4>::RotateTime),
+	LED_Frame(XboxLEDAnimations<4>::States_Player3, XboxLEDAnimations<4>::RotateTime)},
 	50,  // Rotate 50 times
 	LED_Pattern::Previous  // After rotating, go back to previous
 );

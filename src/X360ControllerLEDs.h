@@ -217,7 +217,7 @@ namespace Xbox360Controller_LEDs {
 		virtual void begin() = 0;
 
 		void setPattern(LED_Pattern pattern);
-		void receivePattern(LED_Pattern pattern);
+		void linkPattern(LED_Pattern pattern);
 
 		LED_Pattern getPattern() const;
 
@@ -268,6 +268,7 @@ namespace Xbox360Controller_LEDs {
 		void begin() {  // Initialize LED outputs
 			for (uint8_t i = 0; i < NumLEDs; i++) {
 				pinMode(Pins[i], OUTPUT);
+				digitalWrite(Pins[i], Inverted);  // Set 'off' immediately
 			}
 			setPattern(LED_Pattern::Off);
 		}
