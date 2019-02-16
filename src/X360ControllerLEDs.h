@@ -221,6 +221,7 @@ namespace Xbox360Controller_LEDs {
 
 		LED_Pattern getPattern() const;
 
+		uint8_t getLastFrame() const;
 		void rewriteFrame();
 
 		void run();

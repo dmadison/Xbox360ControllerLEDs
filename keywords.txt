@@ -32,6 +32,7 @@ getPattern	KEYWORD2
 getNumLEDs	KEYWORD2
 
 # LED State
+getLastFrame	KEYWORD2
 rewriteFrame	KEYWORD2
 
 # Process

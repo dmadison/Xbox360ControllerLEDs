@@ -134,6 +134,10 @@ LED_Pattern XboxLEDHandler::getPattern() const {
 	return currentPattern;  // Current pattern as enum
 }
 
+uint8_t XboxLEDHandler::getLastFrame() const {
+	return lastLEDFrame;
+}
+
 void XboxLEDHandler::rewriteFrame() {
 	setLEDs(lastLEDFrame);  // Re-output with last LED data
 }
