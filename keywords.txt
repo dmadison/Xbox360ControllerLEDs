@@ -31,6 +31,9 @@ linkPattern	KEYWORD2
 getPattern	KEYWORD2
 getNumLEDs	KEYWORD2
 
+# LED State
+rewriteFrame	KEYWORD2
+
 # Process
 run	KEYWORD2
 
