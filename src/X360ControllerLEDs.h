@@ -223,6 +223,9 @@ namespace Xbox360Controller_LEDs {
 
 		uint8_t getLastFrame() const;
 		void rewriteFrame();
+		
+		void pauseOutput();
+		void resumeOutput();
 
 		void run();
 
@@ -236,6 +239,7 @@ namespace Xbox360Controller_LEDs {
 
 		// LED Information
 		boolean linkPatterns = false;
+		boolean writeOutput = true;
 		uint8_t lastLEDFrame = 0x00;  // Bitmap of last LED states
 
 		// Pattern Information (Enum)

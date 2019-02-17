@@ -35,6 +35,10 @@ getNumLEDs	KEYWORD2
 getLastFrame	KEYWORD2
 rewriteFrame	KEYWORD2
 
+# Output State
+pauseOutput	KEYWORD2
+resumeOutput	KEYWORD2
+
 # Process
 run	KEYWORD2
 

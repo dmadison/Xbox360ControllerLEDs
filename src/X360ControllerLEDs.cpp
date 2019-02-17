@@ -110,7 +110,10 @@ void XboxLEDHandler::runFrame() {
 	time_frameDuration = frame.Duration * LED_Frame::Timescale;  // Save current frame duration as ms
 	time_frameLast = millis();  // Save time
 	lastLEDFrame = frame.LEDs;  // Save current frame
-	setLEDs(frame.LEDs);  // Set LEDs to current frame
+
+	if (writeOutput) {
+		setLEDs(frame.LEDs);  // Set LEDs to current frame}
+	}	
 }
 
 void XboxLEDHandler::run() {
@@ -128,6 +131,17 @@ void XboxLEDHandler::run() {
 		frameIndex = 0;  // If at last frame, go to start
 	}
 	runFrame();  // Write current frame to LEDs
+}
+
+void XboxLEDHandler::pauseOutput() {
+	writeOutput = false;
+}
+
+void XboxLEDHandler::resumeOutput() {
+	if (writeOutput == false) {
+		writeOutput = true;
+		rewriteFrame();  // If unpausing, rewrite current LED frame
+	}
 }
 
 LED_Pattern XboxLEDHandler::getPattern() const {
