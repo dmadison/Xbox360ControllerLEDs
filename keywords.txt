@@ -31,6 +31,14 @@ linkPattern	KEYWORD2
 getPattern	KEYWORD2
 getNumLEDs	KEYWORD2
 
+# LED State
+getLastFrame	KEYWORD2
+rewriteFrame	KEYWORD2
+
+# Output State
+pauseOutput	KEYWORD2
+resumeOutput	KEYWORD2
+
 # Process
 run	KEYWORD2
 
