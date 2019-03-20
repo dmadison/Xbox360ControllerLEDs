@@ -56,7 +56,6 @@ install:
 script:
   - buildExampleSketch Blink
   - buildExampleSketch CycleAll
-  - buildExampleSketch USB
   - buildExampleSketch UserOutput
   - if [ "$BOARD" = "arduino:avr:uno" ]; then
       buildExampleSketch InterruptTimer;
