@@ -26,37 +26,46 @@
  *  Description:  Simple example for driving the Xbox LED animations from USB
  *                XInput control packets
  *
- *                NOTE: This is NOT a custom USB mode and will not enable the
- *                      Arduino to function as an Xbox controller.
+ *                Requires the Arduino XInput library and a compatible XInput
+ *                boards package:
+ *                https://www.github.com/dmadison/ArduinoXInput
+ *
  */
 
 #include <X360ControllerLEDs.h>
+#include <XInput.h>  // Arduino XInput library
 
-constexpr uint8_t LED_Pins[4] = { 2, 3, 4, 5 };  // LED pin numbers
+// Pin Definitions
+const uint8_t LED_Pin_1 = 2;
+const uint8_t LED_Pin_2 = 3;
+const uint8_t LED_Pin_3 = 4;
+const uint8_t LED_Pin_4 = 5;
+const boolean InvertOutput = false;   // LED output is normal (high = LED on)
+                                      //   Set to "true" if sinking current.
 
-XboxControllerLEDs<LED_Pins[0], LED_Pins[1], LED_Pins[2], LED_Pins[3]> leds;  // Declare four-LED object
+// Controller LED Object
+XboxControllerLEDs<LED_Pin_1, LED_Pin_2, LED_Pin_3, LED_Pin_4> leds(InvertOutput);  // Declare four-LED object
 
-volatile XboxLEDPattern pattern = XboxLEDPattern::Off;
-XboxLEDPattern lastPattern = XboxLEDPattern::Off;
+boolean newPattern = false;  // flag for received data
 
 void setup() {
 	leds.begin();  // Initialize pins
+
+	XInput.setReceiveCallback(ledCallback);  // set callback for LED packets
+	XInput.begin();
 }
 
 void loop() {
-	// Check if new pattern received
-	if (pattern != lastPattern) {
-		lastPattern = pattern;  // Save pattern for reference
-		leds.linkPattern(lastPattern);  // Set pattern and use linked pattern features
+	if (newPattern == true) {  // if there's a new LED packet...
+		newPattern = false;  // disable flag
+		leds.linkPattern((XboxLEDPattern) XInput.getLEDPattern());   // Set pattern and use linked pattern features
 	}
 	
 	leds.run();
 }
 
-// USB ISR Pseudocode
-/*
- * ISR(USB_GEN_vect) {
- *     pattern = xinput.getPattern();  // Set pattern from USB packet
- * }
- */
-
+void ledCallback(uint8_t message_type) {
+	if (message_type == (uint8_t) XInputReceiveType::LEDs) {
+		newPattern = true;  // new LED packet!
+	}
+}
