@@ -11,7 +11,7 @@ See [this post](https://www.partsnotincluded.com/reverse-engineering/xbox-360-co
 
 Download the library [here](../../archive/master.zip) and follow [the instructions on the Arduino website](https://www.arduino.cc/en/guide/libraries#toc4) for installing a library from a .zip file. You can also install the library via the [libraries manager](https://www.arduino.cc/en/guide/libraries#toc3) of the Arduino IDE.
 
-Once the library has been installed, load one of the example sketches by going to `File -> Examples -> Xbox 360 Controller LEDs Library` and selecting one of the available examples. I recommend starting with the "Blink" example, which will use your Arduino's built-in LED. Examples that use animations with 4 LEDs will require 4 external LEDs with proper resistors.
+Once the library has been installed, load one of the example sketches by going to `File -> Examples -> Xbox 360 Controller LEDs` and selecting one of the available examples. I recommend starting with the "Blink" example, which will use your Arduino's built-in LED. Examples that use animations with 4 LEDs will require 4 external LEDs with proper resistors.
 
 **Note**: This library is only for emulating the Xbox 360 controller's **LEDs**. It will **not** make your Arduino work like an Xbox 360 controller. For that, you can use [the Arduino XInput library](https://github.com/dmadison/ArduinoXInput).
 
